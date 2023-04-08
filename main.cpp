@@ -179,67 +179,72 @@ class ScenarioFactory {
         return new Scenario(name, Point(stoi(width), stoi(height)), Point(stoi(robot_x), stoi(robot_y)), matrix);
     }
 
-    vector<Scenario *> *create(vector<string> names, vector<string> widths, vector<string> heights, vector<string> robot_xs, vector<string> robot_ys, vector<string> matrices) {
-        vector<Scenario *> *scenarios = new vector<Scenario *>();
+    vector<Scenario *> create(vector<string> names, vector<string> widths, vector<string> heights, vector<string> robot_xs, vector<string> robot_ys, vector<string> matrices) {
+        vector<Scenario *> scenarios = vector<Scenario *>();
         for (int i = 0; i < names.size(); i++)
-            scenarios->push_back(create(names.at(i), widths.at(i), heights.at(i), robot_xs.at(i), robot_ys.at(i), matrices.at(i)));
+            scenarios.push_back(create(names.at(i), widths.at(i), heights.at(i), robot_xs.at(i), robot_ys.at(i), matrices.at(i)));
         return scenarios;
     }
     
-    void destroy(vector<Scenario *> *scenarios) {
-        for (auto &scenario : *scenarios)
+    void destroy(vector<Scenario *> scenarios) {
+        for (auto &scenario : scenarios)
             delete scenario;
-        delete scenarios;
     }
 
 };
+
+
+
+
 
 class ScenarioAnalyzer {
 
 
  public:
 
-    void analyze(Scenario *scneario) {
+    int analyze(Scenario *scenario) {
         stack<Point> way;
         vector<vector<int>> R;
-        for (int i = 0; i < scneario->matrix.size(); i++) {
+        int sum = 0;
+
+        for (int i = 0; i < scenario->matrix.size(); i++) {
             R.push_back(vector<int>());
-            for (int j = 0; j < scneario->matrix.at(i).size(); j++)
+            for (int j = 0; j < scenario->matrix.at(i).size(); j++)
                 R.at(i).push_back(0);
         }
 
-        Point aux = Point(scneario->robot.y - 1, scneario->robot.x - 1);
+        Point aux = Point(scenario->robot.y, scenario->robot.x);
         way.push(aux);
 
-        if (aux.y >= scneario->dimension.y || aux.y <= -1 ||
-            aux.x >= scneario->dimension.x || aux.x <= -1 || 
-            !scneario->matrix.at(aux.y).at(aux.x))
-            return;
+        if (aux.x < scenario->dimension.x && aux.x >= 0 &&
+            aux.y < scenario->dimension.y && aux.y >= 0)
+            if (!scenario->matrix.at(aux.y).at(aux.x))
+                return sum;
 
         while (!way.empty()) {
             Point p = way.top();
             way.pop();
+
             R.at(p.y).at(p.x) = 1;
 
             for (int i = -1; i < 2; i += 2)
-                if (p.y + i < scneario->dimension.y && p.y + i > -1 &&
-                    p.x < scneario->dimension.x && p.x > -1)
-                    if (scneario->matrix.at(p.y + i).at(p.x) && !R.at(p.y + i).at(p.x))
+                if (p.y + i < scenario->dimension.y && p.y + i > -1 &&
+                    p.x < scenario->dimension.x && p.x > -1)
+                    if (scenario->matrix.at(p.y + i).at(p.x) && !R.at(p.y + i).at(p.x))
                         way.push(Point(p.x, p.y + i));
 
             for (int i = -1; i < 2; i += 2)
-                if (p.x + i < scneario->dimension.x && p.x + i > -1 &&
-                    p.y < scneario->dimension.y && p.y > -1)
-                    if (scneario->matrix.at(p.y).at(p.x + i) && !R.at(p.y).at(p.x + i))
+                if (p.x + i < scenario->dimension.x && p.x + i > -1 &&
+                    p.y < scenario->dimension.y && p.y > -1)
+                    if (scenario->matrix.at(p.y).at(p.x + i) && !R.at(p.y).at(p.x + i))
                         way.push(Point(p.x + i, p.y));
         }
 
-        for (auto line : R) {
+        for (auto line : R)
             for (auto e : line)
-                cout << e;
-            cout << endl;
-        }
-        cout << endl;
+                sum += e;
+
+        return sum;
             
     }
 
@@ -252,16 +257,12 @@ class Solver {
  private:
 
     XMLParser *parser;
-    vector<string> file_names;
 
 
  public:
 
     Solver() {
         vector<string> tags = {"cenarios", "cenario", "nome", "dimensoes", "altura", "largura", "robo", "x", "y", "matriz"};
-        
-        for (int i = 1; i < 2; i++)
-            file_names.push_back("./cenarios/cenarios" + to_string(i) + ".xml");
         parser = new XMLParser(tags);
     }
 
@@ -270,38 +271,37 @@ class Solver {
     }
 
     void solve() {
-        for(auto file_name : file_names) {
-            ifstream file;
-            string xml = "";
+        char file_name[100];
 
-            file.open(file_name);
+        std::cin >> file_name;
 
-            if (!file.is_open()) 
-                continue;
+        ifstream file;
+        string xml = "";
+        file.open(file_name);
+        string line;
+        while (getline(file, line)) xml += line + "\n";
+        file.close();
 
-            string line;
-            while (getline(file, line)) xml += line + "\n";
-            file.close();
-
-            if (!parser->isValid(xml))
-                continue;
-            
-            vector<string> names = parser->get_tags_contents(xml, "nome");
-            vector<string> xs = parser->get_tags_contents(xml, "largura");
-            vector<string> ys = parser->get_tags_contents(xml, "altura");
-            vector<string> robot_xs = parser->get_tags_contents(xml, "x");
-            vector<string> robot_ys = parser->get_tags_contents(xml, "y");
-            vector<string> matrices = parser->get_tags_contents(xml, "matriz");
-
-            ScenarioFactory factory;
-            vector<Scenario *> *scenarios = factory.create(names, xs, ys, robot_xs, robot_ys, matrices);
-
-            ScenarioAnalyzer a;
-            for (auto scenario : *scenarios)
-                a.analyze(scenario);
-
-            factory.destroy(scenarios);
+        if (!parser->isValid(xml)) {
+            cout << "erro" << endl << endl;
+            return;
         }
+        
+        vector<string> names = parser->get_tags_contents(xml, "nome");
+        vector<string> xs = parser->get_tags_contents(xml, "largura");
+        vector<string> ys = parser->get_tags_contents(xml, "altura");
+        vector<string> robot_xs = parser->get_tags_contents(xml, "x");
+        vector<string> robot_ys = parser->get_tags_contents(xml, "y");
+        vector<string> matrices = parser->get_tags_contents(xml, "matriz");
+
+        ScenarioFactory factory;
+        ScenarioAnalyzer analyzer;
+        vector<Scenario *> scenarios = factory.create(names, xs, ys, robot_xs, robot_ys, matrices);
+        for (auto scenario : scenarios)
+            cout << scenario->name << " " << analyzer.analyze(scenario) << endl;
+        cout << endl;
+        
+        factory.destroy(scenarios);
     }
 
 };
