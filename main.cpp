@@ -109,37 +109,145 @@ class XMLParser {
 
 };
 
-int main() {
-    vector<string> tags = {"cenarios", "cenario", "nome", "dimensoes", "altura", "largura", "robo", "x", "y", "matriz"};
+class Point {
 
-    XMLParser parser(tags);
+ public:
+
+    Point() {}
+
+    Point(const Point &other) {
+        x = other.x;
+        y = other.y;
+    }
+
+    Point(int x_, int y_) {
+        x = x_;
+        y = y_;
+    }
+
+    const Point &operator=(const Point &other) {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
+    int x;
+    int y;
+
+};
 
 
-    for (int i = 1; i < 7; i++) {
-        ifstream arquivo;
-        string xml = "";
-        string file_name = "./cenarios/cenarios" + to_string(i) + ".xml";
+class Scenario {
 
-        arquivo.open(file_name);
+ public:
 
-        if (arquivo.is_open())
-        {
-            string linha;
-            while (getline(arquivo, linha)) xml += linha + "\n";
-            arquivo.close();
-        } else {
-            cout << "Não foi possível abrir o arquivo!" << endl;
-            continue;
-        }
+    Scenario(string name_, Point dimension_, Point robot_, string matrix_) {
+        name = name_;
+        dimension = dimension_;
+        robot = robot_;
+        matrix = matrix_;
+    }
 
-        if (parser.isValid(xml)) {
-            cout << "Tudo certo com o arquivo: " + file_name << endl;
+    string name;
+    string matrix;
 
-            vector<string> tag_hierarchy = {"cenario", "robo", "x"};
-            for (auto content : parser.get_tags_contents(xml, tag_hierarchy))
-                cout << content << endl << endl;
+    Point dimension;
+    Point robot;
+
+};
+
+class ScenarioFactory {
+
+ public:
+
+    Scenario *create(string name, string width, string height, string robot_x, string robot_y, string matrix) {
+        return new Scenario(name, Point(stoi(width), stoi(height)), Point(stoi(robot_x), stoi(robot_y)), matrix);
+    }
+
+    vector<Scenario *> *create(vector<string> names, vector<string> widths, vector<string> heights, vector<string> robot_xs, vector<string> robot_ys, vector<string> matrices) {
+        vector<Scenario *> *scenarios = new vector<Scenario *>();
+        for (int i = 0; i < names.size(); i++)
+            scenarios->push_back(create(names.at(i), widths.at(i), heights.at(i), robot_xs.at(i), robot_ys.at(i), matrices.at(i)));
+        return scenarios;
+    }
+    
+    void destroy(vector<Scenario *> *scenarios) {
+        for (auto &scenario : *scenarios)
+            delete scenario;
+        delete scenarios;
+    }
+
+};
+
+
+class Solver {
+
+ private:
+
+    XMLParser *parser;
+    vector<string> file_names;
+
+
+ public:
+
+    Solver(vector<string> tags_, vector<string> file_names_) {
+        parser = new XMLParser(tags_);
+        file_names = file_names_;
+    }
+
+    ~Solver() {
+        delete parser;
+    }
+
+    void solve() {
+        for(auto file_name : file_names) {
+            ifstream file;
+            string xml = "";
+
+            file.open(file_name);
+
+            if (file.is_open()) {
+                string line;
+                while (getline(file, line)) xml += line + "\n";
+                file.close();
+            } else {
+                cout << "Não foi possível abrir o arquivo!" << endl;
+                continue;
+            }
+
+            if (parser->isValid(xml)) {
+                vector<string> names = parser->get_tags_contents(xml, "nome");
+                vector<string> xs = parser->get_tags_contents(xml, "largura");
+                vector<string> ys = parser->get_tags_contents(xml, "altura");
+                vector<string> robot_xs = parser->get_tags_contents(xml, "x");
+                vector<string> robot_ys = parser->get_tags_contents(xml, "y");
+                vector<string> matrices = parser->get_tags_contents(xml, "matriz");
+
+                ScenarioFactory factory;
+                vector<Scenario *> *scenarios = factory.create(names, xs, ys, robot_xs, robot_ys, matrices);
+                
+
+                
+                
+                
+                factory.destroy(scenarios);
+            }
         }
     }
+
+};
+
+int main() {
+    vector<string> tags = {"cenarios", "cenario", "nome", "dimensoes", "altura", "largura", "robo", "x", "y", "matriz"};
+    vector<string> file_names;
+    for (int i = 1; i < 7; i++)
+        file_names.push_back("./cenarios/cenarios" + to_string(i) + ".xml");
+
+    Solver *solver = new Solver(tags, file_names);
+
+    solver->solve();
+
+    delete solver;
 
     return 0;
 }
