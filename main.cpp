@@ -194,6 +194,58 @@ class ScenarioFactory {
 
 };
 
+class ScenarioAnalyzer {
+
+
+ public:
+
+    void analyze(Scenario *scneario) {
+        stack<Point> way;
+        vector<vector<int>> R;
+        for (int i = 0; i < scneario->matrix.size(); i++) {
+            R.push_back(vector<int>());
+            for (int j = 0; j < scneario->matrix.at(i).size(); j++)
+                R.at(i).push_back(0);
+        }
+
+        Point aux = Point(scneario->robot.y - 1, scneario->robot.x - 1);
+        way.push(aux);
+
+        if (aux.y >= scneario->dimension.y || aux.y <= -1 ||
+            aux.x >= scneario->dimension.x || aux.x <= -1 || 
+            !scneario->matrix.at(aux.y).at(aux.x))
+            return;
+
+        while (!way.empty()) {
+            Point p = way.top();
+            way.pop();
+            R.at(p.y).at(p.x) = 1;
+
+            for (int i = -1; i < 2; i += 2)
+                if (p.y + i < scneario->dimension.y && p.y + i > -1 &&
+                    p.x < scneario->dimension.x && p.x > -1)
+                    if (scneario->matrix.at(p.y + i).at(p.x) && !R.at(p.y + i).at(p.x))
+                        way.push(Point(p.x, p.y + i));
+
+            for (int i = -1; i < 2; i += 2)
+                if (p.x + i < scneario->dimension.x && p.x + i > -1 &&
+                    p.y < scneario->dimension.y && p.y > -1)
+                    if (scneario->matrix.at(p.y).at(p.x + i) && !R.at(p.y).at(p.x + i))
+                        way.push(Point(p.x + i, p.y));
+        }
+
+        for (auto line : R) {
+            for (auto e : line)
+                cout << e;
+            cout << endl;
+        }
+        cout << endl;
+            
+    }
+
+
+};
+
 
 class Solver {
 
@@ -224,36 +276,31 @@ class Solver {
 
             file.open(file_name);
 
-            if (file.is_open()) {
-                string line;
-                while (getline(file, line)) xml += line + "\n";
-                file.close();
-            } else {
-                cout << "Não foi possível abrir o arquivo!" << endl;
+            if (!file.is_open()) 
                 continue;
-            }
 
-            if (parser->isValid(xml)) {
-                vector<string> names = parser->get_tags_contents(xml, "nome");
-                vector<string> xs = parser->get_tags_contents(xml, "largura");
-                vector<string> ys = parser->get_tags_contents(xml, "altura");
-                vector<string> robot_xs = parser->get_tags_contents(xml, "x");
-                vector<string> robot_ys = parser->get_tags_contents(xml, "y");
-                vector<string> matrices = parser->get_tags_contents(xml, "matriz");
+            string line;
+            while (getline(file, line)) xml += line + "\n";
+            file.close();
 
-                ScenarioFactory factory;
-                vector<Scenario *> *scenarios = factory.create(names, xs, ys, robot_xs, robot_ys, matrices);
-                
-                for (auto scenario : *scenarios) {
-                    for (auto line : scenario->matrix) {
-                        for (auto c : line)
-                            cout << c;
-                        cout << endl;
-                    }
-                    cout << endl;
-                }
-                factory.destroy(scenarios);
-            }
+            if (!parser->isValid(xml))
+                continue;
+            
+            vector<string> names = parser->get_tags_contents(xml, "nome");
+            vector<string> xs = parser->get_tags_contents(xml, "largura");
+            vector<string> ys = parser->get_tags_contents(xml, "altura");
+            vector<string> robot_xs = parser->get_tags_contents(xml, "x");
+            vector<string> robot_ys = parser->get_tags_contents(xml, "y");
+            vector<string> matrices = parser->get_tags_contents(xml, "matriz");
+
+            ScenarioFactory factory;
+            vector<Scenario *> *scenarios = factory.create(names, xs, ys, robot_xs, robot_ys, matrices);
+
+            ScenarioAnalyzer a;
+            for (auto scenario : *scenarios)
+                a.analyze(scenario);
+
+            factory.destroy(scenarios);
         }
     }
 
