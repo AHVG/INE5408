@@ -145,11 +145,26 @@ class Scenario {
         name = name_;
         dimension = dimension_;
         robot = robot_;
-        matrix = matrix_;
+
+        matrix_.erase(remove(matrix_.begin(), matrix_.end(), '\n'), matrix_.end());
+        
+        int x = 0;
+        int y = 0;
+        for (int i = 0; i < dimension.y; i++)
+            matrix.push_back(vector<int>());
+
+        for (auto c : matrix_) {
+            matrix.at(y).push_back(int(c) - int('0'));
+            x++;
+            if (x >= dimension.x) {
+                x = 0;
+                y++;
+            }
+        }
     }
 
     string name;
-    string matrix;
+    vector<vector<int>> matrix;
 
     Point dimension;
     Point robot;
@@ -190,9 +205,12 @@ class Solver {
 
  public:
 
-    Solver(vector<string> tags_, vector<string> file_names_) {
-        parser = new XMLParser(tags_);
-        file_names = file_names_;
+    Solver() {
+        vector<string> tags = {"cenarios", "cenario", "nome", "dimensoes", "altura", "largura", "robo", "x", "y", "matriz"};
+        
+        for (int i = 1; i < 2; i++)
+            file_names.push_back("./cenarios/cenarios" + to_string(i) + ".xml");
+        parser = new XMLParser(tags);
     }
 
     ~Solver() {
@@ -226,10 +244,14 @@ class Solver {
                 ScenarioFactory factory;
                 vector<Scenario *> *scenarios = factory.create(names, xs, ys, robot_xs, robot_ys, matrices);
                 
-
-                
-                
-                
+                for (auto scenario : *scenarios) {
+                    for (auto line : scenario->matrix) {
+                        for (auto c : line)
+                            cout << c;
+                        cout << endl;
+                    }
+                    cout << endl;
+                }
                 factory.destroy(scenarios);
             }
         }
@@ -238,12 +260,8 @@ class Solver {
 };
 
 int main() {
-    vector<string> tags = {"cenarios", "cenario", "nome", "dimensoes", "altura", "largura", "robo", "x", "y", "matriz"};
-    vector<string> file_names;
-    for (int i = 1; i < 7; i++)
-        file_names.push_back("./cenarios/cenarios" + to_string(i) + ".xml");
 
-    Solver *solver = new Solver(tags, file_names);
+    Solver *solver = new Solver();
 
     solver->solve();
 
