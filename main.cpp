@@ -5,6 +5,12 @@
 #include <stdexcept>
 #include <cstdint>
 
+
+#include <iostream>
+#include <stdexcept>
+#include <cstdint>
+
+
 namespace structures {
 
 template<typename T>
@@ -15,9 +21,6 @@ class ArrayList {
         max_size_ = max_size;
         size_ = 0;
         contents = new T[max_size_];
-    }
-    ArrayList(const ArrayList &other) {
-        *this = other;
     }
     ~ArrayList() {
         delete [] contents;
@@ -120,14 +123,6 @@ class ArrayList {
         return at(index);
     }
 
-    const ArrayList &operator=(const ArrayList &other) {
-        delete [] contents;
-        contents = new T[other.max_size()];
-        max_size_ = other.max_size();
-        size = other.size();
-        for (std::size_t i = 0; i < size; i++)
-            contents[i] = other.at(i);
-    }
 
     // descricao do 'operator []' na FAQ da disciplina
  private:
@@ -139,6 +134,7 @@ class ArrayList {
 };
 
 }  // namespace structures
+
 
 namespace structures {
 
