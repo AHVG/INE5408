@@ -20,6 +20,9 @@ class ArrayList {
         size_ = 0;
         contents = new T[max_size_];
     }
+    ArrayList(const ArrayList &other) {
+        *this = other;
+    }
     ~ArrayList() {
         delete [] contents;
     }
@@ -121,6 +124,19 @@ class ArrayList {
         return at(index);
     }
 
+    const ArrayList &operator=(const ArrayList &other) {
+
+        delete contents;
+        max_size_ = other.max_size();
+        contents = new T[max_size()];
+        size_ = other.size();
+
+        for (std::size_t i = 0; i < size(); i++)
+            contents[i] = other.at(i);
+
+        return *this;
+    }
+
 
     // descricao do 'operator []' na FAQ da disciplina
  private:
@@ -134,10 +150,8 @@ class ArrayList {
 
 #define ListString  ArrayList<std::string>
 #define ListInt     ArrayList<int>
-#define ListList    ArrayList<ListInt>
+#define ListList    ArrayList<ListInt*>
 
-
-namespace structures {
 
 template<typename T>
 class LinkedStack {
@@ -250,236 +264,6 @@ class LinkedStack {
     Node* top_;  // nodo-topo
     std::size_t size_;  // tamanho
 };
-}  // namespace structures
-
-namespace structures {
-
-template<typename T>
-class LinkedList {
- public:
-    LinkedList() {
-        head = nullptr;
-        size_ = 0u;
-    }  // construtor padrão
-
-    LinkedList(const LinkedList &other) {
-        *this = other;
-    }
-
-    ~LinkedList() {
-        clear();
-    }  // destrutor
-
-    void clear() {
-        Node *current = head;
-        for (std::size_t i = 0; i < size(); i++) {
-            Node *next = current->next();
-            delete current;
-            current = next;
-        }
-        head = nullptr;
-        size_ = 0;
-    }  // limpar lista
-
-    void push_back(const T& data) {
-        Node *node = new Node(data, nullptr);
-        if (empty())
-            head = node;
-        else
-            end()->next(node);
-        size_++;
-    }  // inserir no fim
-
-    void push_front(const T& data) {
-        Node *node = new Node(data, head);
-        head = node;
-        size_++;
-    }  // inserir no início
-
-    void insert(const T& data, std::size_t index) {
-        if (index <= 0 || size() <= index)
-            throw std::out_of_range("Index inválido!");
-
-        Node *previous = head;
-        Node *current = head->next();
-        for (std::size_t i = 1; i < index; i++) {
-            previous = current;
-            current = current->next();
-        }
-        Node *node = new Node(data, current);
-        previous->next(node);
-
-        size_++;
-    }  // inserir na posição
-
-    void insert_sorted(const T& data) {
-        if (empty()) {
-            push_front(data);
-            return;
-        }
-        if (data < head->data()) {
-            push_front(data);
-            return;
-        }
-        if (size() == 1) {
-            push_back(data);
-            return;
-        }
-        Node *previous = head;
-        Node *current = head->next();
-        for (std::size_t i = 1; i < size(); i++) {
-            if (previous->data() <= data && data <= current->data()) {
-                insert(data, i);
-                return;
-            }
-            previous = current;
-            current = current->next();
-        }
-        push_back(data);
-    }  // inserir em ordem
-
-    T& at(std::size_t index) const {
-        if (index < 0 || size() <= index || empty())
-            throw std::out_of_range("Index inválido! " + std::to_string(index));
-        Node *current = head;
-        for (std::size_t i = 0; i < index; i++)
-            current = current->next();
-        return current->data();
-    }  // acessar um elemento na posição index
-
-    T &operator[](const int &index) const {
-        return at(index);
-    }
-
-    T pop(std::size_t index) {
-        if (index < 0 || size() <= index || empty())
-            throw std::out_of_range("Index inválido!");
-        T data = at(index);
-        remove(data);
-        return data;
-    }  // retirar da posição
-
-    T pop_back() {
-        if (empty())
-            throw std::out_of_range("Lista vazia!");
-        Node *end_ = end();
-        T data = end_->data();
-        delete end_;
-        size_--;
-        return data;
-    }  // retirar do fim
-
-    T pop_front() {
-        if (empty())
-            throw std::out_of_range("Lista vazia!");
-
-        Node *head_ = head;
-        Node *new_head = head->next();
-        head = new_head;
-
-        T data = head_->data();
-        delete head_;
-        size_--;
-
-        return data;
-    }  // retirar do início
-
-    void remove(const T& data) {
-        std::size_t index = find(data);
-        if (index == size())
-            return;
-        Node *previous = nullptr;
-        Node *current = head;
-        for (std::size_t i = 0; i < index; i++) {
-            previous = current;
-            current = current->next();
-        }
-        if (previous == nullptr)
-            head = current->next();
-        else
-            previous->next(current->next());
-        delete current;
-        size_--;
-    }  // remover específico
-
-    bool empty()  const {
-        return size_ == 0;
-    }  // lista vazia
-
-    bool contains(const T& data) const {
-        return find(data) != size();
-    }  // contém
-
-    std::size_t find(const T& data) const {
-        Node *current = head;
-        for (std::size_t i = 0; i < size(); i++) {
-            if (current->data() == data)
-                return i;
-            current = current->next();
-        }
-        return size();
-    }  // posição do dado
-
-    std::size_t size() const {
-        return size_;
-    }  // tamanho da lista
-
-    const LinkedList &operator=(const LinkedList &other) {
-        clear();
-        for (long long int i = other.size() - 1; i >= 0; i--)
-            push_front(other.at(i));
-        return *this;
-    }
-
- private:
-    class Node {  // Elemento
-     public:
-        explicit Node(const T& data):
-            data_{data}
-        {}
-
-        Node(const T& data, Node* next):
-            data_{data},
-            next_{next}
-        {}
-
-        T& data() {  // getter: dado
-            return data_;
-        }
-
-        const T& data() const {  // getter const: dado
-            return data_;
-        }
-
-        Node* next() {  // getter: próximo
-            return next_;
-        }
-
-        const Node* next() const {  // getter const: próximo
-            return next_;
-        }
-
-        void next(Node* node) {  // setter: próximo
-            next_ = node;
-        }
-
-     private:
-        T data_;
-        Node* next_{nullptr};
-    };
-
-    Node* end() {  // último nodo da lista
-        auto it = head;
-        for (auto i = 1u; i < size(); ++i) {
-            it = it->next();
-        }
-        return it;
-    }
-
-    Node* head{nullptr};
-    std::size_t size_{0u};
-};
-}  // namespace structures
 
 class XMLParser {
  private:
@@ -500,7 +284,7 @@ class XMLParser {
 
     bool isValid(std::string xml) {
         size_t xml_len = xml.length();
-        structures::LinkedStack<std::string> tags_stack;
+        LinkedStack<std::string> tags_stack;
         for (size_t i = 0; i < xml_len; i++) {
             for (std::size_t j = 0; j < opening_tags->size(); j++)
                 if (opening_tags->at(j).length() <= xml_len - i)
@@ -522,7 +306,7 @@ class XMLParser {
     }
 
     ListString *get_tags_contents(std::string xml, std::string tag) {
-        ListString *tag_contents = new ListString(100);
+        ListString *tag_contents = new ListString(200);
         tag = "<" + tag + ">";
         std::size_t index = -1;
         for (std::size_t i = 0; i < opening_tags->size(); i++)
@@ -545,7 +329,7 @@ class XMLParser {
     }
 
     ListString *get_tags_contents(std::string xml, ListString &tag_hierarchy) {
-        ListString *contents = new ListString(100);
+        ListString *contents = new ListString(200);
         for (std::size_t i = 0; i < tag_hierarchy.size(); i++) {
             std::string aux = "";
             contents = get_tags_contents(xml, tag_hierarchy[i]);
@@ -590,39 +374,40 @@ class Analyzer {
  public:
 
     int analyze(Point robot, Point dimension, ListList &matrix) {
-        structures::LinkedStack<Point> way;
+        LinkedStack<Point> way;
         ListList *R = new ListList(dimension.y);
         int sum = 0;
         for (int i = 0; i < dimension.y; i++) {
-            R->push_back(ListInt(dimension.x));
+            R->push_back(new ListInt(dimension.x));
             for (int j = 0; j < dimension.x; j++)
-                R->at(i).push_back(0);
+                R->at(i)->push_back(0);
         }
         way.push(Point(robot.y, robot.x));
         Point aux = way.top();
         if (aux.x < dimension.x && aux.x >= 0 &&
             aux.y < dimension.y && aux.y >= 0)
-            if (!matrix.at(aux.y).at(aux.x))
+            if (!matrix.at(aux.y)->at(aux.x))
                 return sum;
+
         while (!way.empty()) {
             Point p = way.pop();
-            R->at(p.y).at(p.x) = 1;
+            R->at(p.y)->at(p.x) = 1;
 
             for (int i = -1; i < 2; i += 2)
                 if (p.y + i < dimension.y && p.y + i > -1 &&
                     p.x < dimension.x && p.x > -1)
-                    if (matrix[p.y + i][p.x] && !R->at(p.y + i).at(p.x))
+                    if (matrix.at(p.y + i)->at(p.x) && !R->at(p.y + i)->at(p.x))
                         way.push(Point(p.x, p.y + i));
 
             for (int i = -1; i < 2; i += 2)
                 if (p.x + i < dimension.x && p.x + i > -1 &&
                     p.y < dimension.y && p.y > -1)
-                    if (matrix[p.y][p.x + i] && !R->at(p.y).at(p.x + i))
+                    if (matrix.at(p.y)->at(p.x + i) && !R->at(p.y)->at(p.x + i))
                         way.push(Point(p.x + i, p.y));
         }
         for (std::size_t i = 0; i < R->size(); i++)
-            for (std::size_t j = 0; j < R->at(i).size(); j++)
-                sum += R->at(i).at(j);
+            for (std::size_t j = 0; j < R->at(i)->size(); j++)
+                sum += R->at(i)->at(j);
         return sum;
     }
 
@@ -641,10 +426,10 @@ class Solver {
         int x = 0;
         int y = 0;
         for (int i = 0; i < dimension.y; i++)
-            new_matrix->push_back(ListInt(dimension.x));
+            new_matrix->push_back(new ListInt(dimension.x));
 
         for (auto c : matrix) {
-            new_matrix->at(y).push_back(int(c) - int('0'));
+            new_matrix->at(y)->push_back(int(c) - int('0'));
             x++;
             if (x >= dimension.x) {
                 x = 0;
