@@ -11,8 +11,6 @@
 #include <cstdint>
 
 
-namespace structures {
-
 template<typename T>
 class ArrayList {
  public:
@@ -133,7 +131,10 @@ class ArrayList {
     static const auto DEFAULT_MAX = 10u;
 };
 
-}  // namespace structures
+
+#define ListString  ArrayList<std::string>
+#define ListInt     ArrayList<int>
+#define ListList    ArrayList<ListInt>
 
 
 namespace structures {
@@ -483,15 +484,17 @@ class LinkedList {
 class XMLParser {
  private:
 
-    structures::LinkedList<std::string> opening_tags;
-    structures::LinkedList<std::string> closing_tags;
+    ListString *opening_tags;
+    ListString *closing_tags;
 
  public:
     // https://pt.stackoverflow.com/questions/410527/passar-objeto-de-classe-como-par%C3%A2metro-de-construtor-em-c
-    XMLParser(structures::LinkedList<std::string> tags) {
+    XMLParser(ListString &tags) {
+        opening_tags = new ListString(tags.size());
+        closing_tags = new ListString(tags.size());
         for (std::size_t i = 0; i < tags.size(); i++) {
-            opening_tags.push_back("<" + tags[i] + ">");
-            closing_tags.push_back("</" + tags[i] + ">");
+            opening_tags->push_back("<" + tags[i] + ">");
+            closing_tags->push_back("</" + tags[i] + ">");
         }
     }
 
@@ -499,17 +502,17 @@ class XMLParser {
         size_t xml_len = xml.length();
         structures::LinkedStack<std::string> tags_stack;
         for (size_t i = 0; i < xml_len; i++) {
-            for (std::size_t j = 0; j < opening_tags.size(); j++)
-                if (opening_tags.at(j).length() <= xml_len - i)
-                    if (xml.substr(i, opening_tags.at(j).length()) == opening_tags.at(j))
-                        tags_stack.push(opening_tags.at(j));
+            for (std::size_t j = 0; j < opening_tags->size(); j++)
+                if (opening_tags->at(j).length() <= xml_len - i)
+                    if (xml.substr(i, opening_tags->at(j).length()) == opening_tags->at(j))
+                        tags_stack.push(opening_tags->at(j));
 
-            for (std::size_t j = 0; j < closing_tags.size(); j++)
-                if (closing_tags.at(j).length() <= xml_len - i)
-                    if (xml.substr(i, closing_tags.at(j).length()) == closing_tags.at(j)) {
+            for (std::size_t j = 0; j < closing_tags->size(); j++)
+                if (closing_tags->at(j).length() <= xml_len - i)
+                    if (xml.substr(i, closing_tags->at(j).length()) == closing_tags->at(j)) {
                         if (tags_stack.empty())
                             return false;
-                        else if (tags_stack.top() == opening_tags.at(j))
+                        else if (tags_stack.top() == opening_tags->at(j))
                             tags_stack.pop();
                         else
                             return false;
@@ -518,12 +521,12 @@ class XMLParser {
         return tags_stack.empty();
     }
 
-    structures::LinkedList<std::string> get_tags_contents(std::string xml, std::string tag) {
-        structures::LinkedList<std::string> tag_contents;
+    ListString *get_tags_contents(std::string xml, std::string tag) {
+        ListString *tag_contents = new ListString(100);
         tag = "<" + tag + ">";
         std::size_t index = -1;
-        for (std::size_t i = 0; i < opening_tags.size(); i++)
-            if (opening_tags.at(i) == tag)
+        for (std::size_t i = 0; i < opening_tags->size(); i++)
+            if (opening_tags->at(i) == tag)
                 index = i;
         if (index == -1u)
             return tag_contents;
@@ -532,22 +535,22 @@ class XMLParser {
             if (opening_tag_index == std::string::npos)
                 break;
             opening_tag_index += tag.length();
-            std::size_t closing_tag_index = xml.find(closing_tags[index]);
+            std::size_t closing_tag_index = xml.find(closing_tags->at(index));
             std::size_t size = closing_tag_index - opening_tag_index;
-            tag_contents.push_back(xml.substr(opening_tag_index, size));
-            size = xml.length() - (closing_tag_index + closing_tags[index].length());
-            xml = xml.substr(closing_tag_index + closing_tags[index].length(), size);
+            tag_contents->push_back(xml.substr(opening_tag_index, size));
+            size = xml.length() - (closing_tag_index + closing_tags->at(index).length());
+            xml = xml.substr(closing_tag_index + closing_tags->at(index).length(), size);
         }
         return tag_contents;
     }
 
-    structures::LinkedList<std::string> get_tags_contents(std::string xml, structures::LinkedList<std::string> tag_hierarchy) {
-        structures::LinkedList<std::string> contents;
+    ListString *get_tags_contents(std::string xml, ListString &tag_hierarchy) {
+        ListString *contents = new ListString(100);
         for (std::size_t i = 0; i < tag_hierarchy.size(); i++) {
             std::string aux = "";
             contents = get_tags_contents(xml, tag_hierarchy[i]);
-            for (std::size_t i = 0; i < contents.size(); i++)
-                aux += contents[i];
+            for (std::size_t i = 0; i < contents->size(); i++)
+                aux += contents->at(i);
             xml = aux;
         }
         return contents;
@@ -586,45 +589,40 @@ class Analyzer {
 
  public:
 
-    int analyze(Point robot, Point dimension, structures::LinkedList<structures::LinkedList<int>> &matrix) {
+    int analyze(Point robot, Point dimension, ListList &matrix) {
         structures::LinkedStack<Point> way;
-        structures::LinkedList<structures::LinkedList<int>> R;
+        ListList *R = new ListList(dimension.y);
         int sum = 0;
         for (int i = 0; i < dimension.y; i++) {
-            R.push_front(structures::LinkedList<int>());
-            for (int j = 0; j < dimension.x; j++) {
-                R[i].push_front(0);
-            }
-            std::cout << R[i].size() << std::endl;
+            R->push_back(ListInt(dimension.x));
+            for (int j = 0; j < dimension.x; j++)
+                R->at(i).push_back(0);
         }
         way.push(Point(robot.y, robot.x));
         Point aux = way.top();
         if (aux.x < dimension.x && aux.x >= 0 &&
             aux.y < dimension.y && aux.y >= 0)
-            if (!matrix[aux.y][aux.x])
+            if (!matrix.at(aux.y).at(aux.x))
                 return sum;
         while (!way.empty()) {
             Point p = way.pop();
-            std::cout << "(" << dimension.x << "," << dimension.y << ")" << std::endl;
-            std::cout << "(" << p.x << "," << p.y << ")" << std::endl;
-            std::cout << "(" << R[0].size() << "," << R.size() << ")" << std::endl;
-            R[p.y][p.x] = 1;
+            R->at(p.y).at(p.x) = 1;
 
             for (int i = -1; i < 2; i += 2)
                 if (p.y + i < dimension.y && p.y + i > -1 &&
                     p.x < dimension.x && p.x > -1)
-                    if (matrix[p.y + i][p.x] && !R[p.y + i][p.x])
+                    if (matrix[p.y + i][p.x] && !R->at(p.y + i).at(p.x))
                         way.push(Point(p.x, p.y + i));
 
             for (int i = -1; i < 2; i += 2)
                 if (p.x + i < dimension.x && p.x + i > -1 &&
                     p.y < dimension.y && p.y > -1)
-                    if (matrix[p.y][p.x + i] && !R[p.y][p.x + i])
+                    if (matrix[p.y][p.x + i] && !R->at(p.y).at(p.x + i))
                         way.push(Point(p.x + i, p.y));
         }
-        for (std::size_t i = 0; i < R.size(); i++)
-            for (std::size_t j = 0; j < R[i].size(); j++)
-                sum += R[i][j];
+        for (std::size_t i = 0; i < R->size(); i++)
+            for (std::size_t j = 0; j < R->at(i).size(); j++)
+                sum += R->at(i).at(j);
         return sum;
     }
 
@@ -637,16 +635,16 @@ class Solver {
 
     XMLParser *parser;
 
-    structures::LinkedList<structures::LinkedList<int>> convert(std::string matrix, Point dimension) {
-        structures::LinkedList<structures::LinkedList<int>> new_matrix;
+    ListList *convert(std::string matrix, Point dimension) {
+        ListList *new_matrix = new ListList(dimension.y);
         matrix.erase(remove(matrix.begin(), matrix.end(), '\n'), matrix.end());
         int x = 0;
         int y = 0;
         for (int i = 0; i < dimension.y; i++)
-            new_matrix.push_back(structures::LinkedList<int>());
+            new_matrix->push_back(ListInt(dimension.x));
 
         for (auto c : matrix) {
-            new_matrix[y].push_back(int(c) - int('0'));
+            new_matrix->at(y).push_back(int(c) - int('0'));
             x++;
             if (x >= dimension.x) {
                 x = 0;
@@ -660,7 +658,7 @@ class Solver {
  public:
 
     Solver() {
-        structures::LinkedList<std::string> tags;
+        ListString tags(10);
         tags.push_back("cenarios");
         tags.push_back("cenario");
         tags.push_back("nome");
@@ -672,7 +670,6 @@ class Solver {
         tags.push_back("y");
         tags.push_back("matriz");
         parser = new XMLParser(tags);
-        std::cout << "io" << std::endl;
     }
 
     ~Solver() {
@@ -695,19 +692,19 @@ class Solver {
             std::cout << "erro" << std::endl << std::endl;
             return;
         }
-        structures::LinkedList<std::string> names = parser->get_tags_contents(xml, "nome");
-        structures::LinkedList<std::string> width = parser->get_tags_contents(xml, "largura");
-        structures::LinkedList<std::string> height = parser->get_tags_contents(xml, "altura");
-        structures::LinkedList<std::string> robot_xs = parser->get_tags_contents(xml, "x");
-        structures::LinkedList<std::string> robot_ys = parser->get_tags_contents(xml, "y");
-        structures::LinkedList<std::string> matrices = parser->get_tags_contents(xml, "matriz");
+        ListString *names = parser->get_tags_contents(xml, "nome");
+        ListString *width = parser->get_tags_contents(xml, "largura");
+        ListString *height = parser->get_tags_contents(xml, "altura");
+        ListString *robot_xs = parser->get_tags_contents(xml, "x");
+        ListString *robot_ys = parser->get_tags_contents(xml, "y");
+        ListString *matrices = parser->get_tags_contents(xml, "matriz");
 
         Analyzer analyzer;
-        for (std::size_t i = 0; i < names.size(); i++) {
-            Point robot = Point(std::stoi(robot_xs[i]), std::stoi(robot_ys[i]));
-            Point dimension = Point(std::stoi(width[i]), std::stoi(height[i]));
-            structures::LinkedList<structures::LinkedList<int>> matrix = convert(matrices[i], dimension);
-            std::cout << names[i] << " " << analyzer.analyze(robot, dimension, matrix) << std::endl;
+        for (std::size_t i = 0; i < names->size(); i++) {
+            Point robot = Point(std::stoi(robot_xs->at(i)), std::stoi(robot_ys->at(i)));
+            Point dimension = Point(std::stoi(width->at(i)), std::stoi(height->at(i)));
+            ListList *matrix = convert(matrices->at(i), dimension);
+            std::cout << names->at(i) << " " << analyzer.analyze(robot, dimension, *matrix) << std::endl;
         }
         std::cout << std::endl;
     }
@@ -716,9 +713,9 @@ class Solver {
 
 int main()
 {
-    Solver solver;
+    Solver *solver = new Solver();
 
-    solver.solve();
+    solver->solve();
 
     return 0;
 }
