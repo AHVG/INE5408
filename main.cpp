@@ -303,6 +303,35 @@ class XMLParser {
         return tags_stack.empty();
     }
 
+    std::size_t get_next_closing_tag(std::string xml, std::size_t index, std::size_t off_set) {
+        std::size_t closing_tag_index = 0;
+        std::size_t xml_len = xml.length();
+
+        std::string opening_tag = opening_tags->at(index);
+        std::string closing_tag = closing_tags->at(index);
+
+        LinkedStack<std::string> tags;
+        tags.push(opening_tag);
+        std::size_t last_closing_tag_index = 0;
+        for (size_t i = off_set; i < xml_len; i++) {
+            
+            if (opening_tag.length() <= xml_len - i)
+                if (xml.substr(i, opening_tag.length()) == opening_tag)
+                    tags.push(opening_tag);
+
+            if (closing_tag.length() <= xml_len - i)
+                if (xml.substr(i, closing_tag.length()) == closing_tag) {
+                        tags.pop();
+                        last_closing_tag_index = i;
+                }
+            
+            if (tags.empty())
+                break;
+        }
+
+        return last_closing_tag_index;
+    }
+
     // Função que retorna a lista de conteudo da tag escolhida
     // Oberve que esta função tem limitações, mas para o presente projeto
     // funciona perfeitamente. Por exemplo, mesmas tags uma dentro da outra
@@ -336,7 +365,7 @@ class XMLParser {
             opening_tag_index += tag.length();
 
             // Encontra a tag de fechamento correspondente (Mudar para ser mais geral possível)
-            std::size_t closing_tag_index = xml.find(closing_tags->at(index));
+            std::size_t closing_tag_index = get_next_closing_tag(xml, index, opening_tag_index);
 
             // Calcula o tamanho do conteúdo
             std::size_t size = closing_tag_index - opening_tag_index;
