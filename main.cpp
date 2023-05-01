@@ -6,11 +6,7 @@
 #include <cstdint>
 
 
-#include <iostream>
-#include <stdexcept>
-#include <cstdint>
-
-
+// Classe feita nos VPL´s com algumas melhorias
 template<typename T>
 class ArrayList {
  public:
@@ -133,13 +129,16 @@ class ArrayList {
 
     static const auto DEFAULT_MAX = 10u;
 };
-
-
+// #defines para facilitar a instanciação do ArrayList
 #define ListString  ArrayList<std::string>
 #define ListInt     ArrayList<int>
 #define ListList    ArrayList<ListInt*>
+// Observer que a ListList é uma lista de ponteiros para ListInt.
+// Se fosse uma lista de ListInt, seria necessário implementar
+// métodos de atribuição, de copia e de movimentação.
 
 
+// Classe implementada nos VPL´s com algumas melhorias
 template<typename T>
 class LinkedStack {
  public:
@@ -212,39 +211,49 @@ class LinkedStack {
 
         T& data() {
             return data_;
-        }  // getter: info
+        }
         const T& data() const {
             return data_;
-        }  // getter-constante: info
+        }
 
         Node* next() {
             return next_;
-        }  // getter: próximo
+        }
         const Node* next() const {
             return next_;
-        }  // getter-constante: próximo
+        }
 
         void next(Node* next) {
             next_ = next;
-        }  // setter: próximo
+        }
 
      private:
         T data_;
         Node* next_;
     };
 
-    Node* top_;  // nodo-topo
-    std::size_t size_;  // tamanho
+    Node* top_;
+    std::size_t size_;
 };
 
+// Classe para analisar o XML
 class XMLParser {
  private:
 
+    // Duas listas usadas para armazenar as tags de abertura e fechamento
+    // A ideia é que nos mesmos índices as listas opening e closing tenham
+    // itens correspondentes.
+    // Ex.:
+    // Suponhamos que temos a tag de abertura chamada <cenario>, sua
+    // contraparte seria </cenario>, e que ela está no índice i da lista
+    // opening_tags. Quando formos acessar o índice i da lista closing_tags,
+    // obteremos a contraparte de <cenario>, ou seja, </cenario>.
     ListString *opening_tags;
     ListString *closing_tags;
 
  public:
     
+    // Recebe as tags apenas para ser o mais generalista possível
     XMLParser(ListString &tags) {
         opening_tags = new ListString(tags.size());
         closing_tags = new ListString(tags.size());
@@ -258,15 +267,26 @@ class XMLParser {
         delete closing_tags;
     }
 
+    // Método utilizado para verificar se o xml é válido
     bool isValid(std::string xml) {
         size_t xml_len = xml.length();
+
+        // Instanciação da pilha de tags, à principio vazia.
         LinkedStack<std::string> tags_stack;
+
+        // O for vai iteirar por todos o xml (xml_len).
+        // Isto é, ele vai de caracter por caracter
         for (size_t i = 0; i < xml_len; i++) {
+            
+            // Este primeiro for é para verificar se os próximos caracteres
+            // são uma tag de abertura.
             for (std::size_t j = 0; j < opening_tags->size(); j++)
                 if (opening_tags->at(j).length() <= xml_len - i)
                     if (xml.substr(i, opening_tags->at(j).length()) == opening_tags->at(j))
                         tags_stack.push(opening_tags->at(j));
 
+            // O segundo for é para verificar se os mesmos próximos caracteres
+            // são uma tag de fechamento.
             for (std::size_t j = 0; j < closing_tags->size(); j++)
                 if (closing_tags->at(j).length() <= xml_len - i)
                     if (xml.substr(i, closing_tags->at(j).length()) == closing_tags->at(j)) {
@@ -278,32 +298,63 @@ class XMLParser {
                             return false;
                     }
         }
+
+        // Se no fim estiver vazia a pilha de tag é por que o xml é válido
         return tags_stack.empty();
     }
 
+    // Função que retorna a lista de conteudo da tag escolhida
+    // Oberve que esta função tem limitações, mas para o presente projeto
+    // funciona perfeitamente. Por exemplo, mesmas tags uma dentro da outra
+    // a função não será capaz de analisar.
     ListString *get_tags_contents(std::string xml, std::string tag) {
+        // Instanciando os conteúdos da tag com 200, apenas porque nenhum
+        // arquivo passa de 102
         ListString *tag_contents = new ListString(200);
+
+        // Formatando a tag
         tag = "<" + tag + ">";
+
+        // Verificando se a tag
         std::size_t index = -1;
         for (std::size_t i = 0; i < opening_tags->size(); i++)
             if (opening_tags->at(i) == tag)
                 index = i;
+        // Se não tiver retorna
         if (index == -1u)
             return tag_contents;
+        
+        // Se tiver entra no while para analisar o xml e obter os conteúdos
         while(true) {
+            // Encontra a próxima tag de abertura
             std::size_t opening_tag_index = xml.find(tag);
+            // Se não encontrar, sai do while
             if (opening_tag_index == std::string::npos)
                 break;
+            
+            // Calcula o indice do início do conteúdo
             opening_tag_index += tag.length();
+
+            // Encontra a tag de fechamento correspondente (Mudar para ser mais geral possível)
             std::size_t closing_tag_index = xml.find(closing_tags->at(index));
+
+            // Calcula o tamanho do conteúdo
             std::size_t size = closing_tag_index - opening_tag_index;
+
+            // Adiciona o bloco de conteúdo encontrado na lista de conteúdo
             tag_contents->push_back(xml.substr(opening_tag_index, size));
+            
+            // Calcula o novo tamanho do xml
             size = xml.length() - (closing_tag_index + closing_tags->at(index).length());
+
+            // Atualiza o xml com o bloco depois da tag obtida antes
             xml = xml.substr(closing_tag_index + closing_tags->at(index).length(), size);
         }
         return tag_contents;
     }
 
+    // Uma função que retorna o conteudo de uma hierarquia de tag.
+    // Não utilizada no projeto.
     ListString *get_tags_contents(std::string xml, ListString &tag_hierarchy) {
         ListString *contents;
         for (std::size_t i = 0; i < tag_hierarchy.size(); i++) {
@@ -311,6 +362,8 @@ class XMLParser {
             contents = get_tags_contents(xml, tag_hierarchy[i]);
             for (std::size_t i = 0; i < contents->size(); i++)
                 aux += contents->at(i);
+            
+            // Deletando a conteudo obtido caso não seja a última iteração
             if (i + 1 != tag_hierarchy.size())
                 delete contents;
             xml = aux;
@@ -319,6 +372,10 @@ class XMLParser {
     }
 };
 
+// Classe criada para facilitar a analise de cada cenário.
+// Ela seria a abstração de um ponto ou coordenada na matriz.
+// Observe que tudo é público. Foi feito assim, apenas para
+// facilitar o acesso as informações do objeto.
 class Point {
 
  public:
@@ -346,74 +403,111 @@ class Point {
 
 };
 
-class Analyzer {
 
+// Classe que análise cada cenário
+class Analyzer {
 
  public:
 
     int analyze(Point robot, Point dimension, ListList &matrix) {
+        // Caminho
         LinkedStack<Point> way;
+        // Area que o robô limpará
         ListList *R = new ListList(dimension.y);
+
+        // O tanto que será limpo (retorno)
         int sum = 0;
+
+        // Criando a área a ser limpa vazia
         for (int i = 0; i < dimension.y; i++) {
             R->push_back(new ListInt(dimension.x));
             for (int j = 0; j < dimension.x; j++)
                 R->at(i)->push_back(0);
         }
+
+        // Colocando o robô no way
         way.push(Point(robot.y, robot.x));
         Point aux = way.top();
+
+        // Verificando se o robô está dentro de uma área suja
+        // Se não tiver retorna 0
         if (aux.x < dimension.x && aux.x >= 0 &&
             aux.y < dimension.y && aux.y >= 0)
             if (!matrix.at(aux.y)->at(aux.x))
                 return sum;
 
+        // Se tiver, começa a anlisar a vizinhança até acabar
         while (!way.empty()) {
+            // Retira a vizinhaça
             Point p = way.pop();
+
+            // Define 1 para não analisar novamente a área
             R->at(p.y)->at(p.x) = 1;
 
+            // Analisa as casas de cima e de baixo da atual.
+            // Se tiver suja e dentro da matriz, insere no way.
             for (int i = -1; i < 2; i += 2)
                 if (p.y + i < dimension.y && p.y + i > -1 &&
                     p.x < dimension.x && p.x > -1)
                     if (matrix.at(p.y + i)->at(p.x) && !R->at(p.y + i)->at(p.x))
                         way.push(Point(p.x, p.y + i));
 
+            // Analisa as casas do lado e do outro da atual.
+            // Se tiver suja e dentro da matriz, insere no way.
             for (int i = -1; i < 2; i += 2)
                 if (p.x + i < dimension.x && p.x + i > -1 &&
                     p.y < dimension.y && p.y > -1)
                     if (matrix.at(p.y)->at(p.x + i) && !R->at(p.y)->at(p.x + i))
                         way.push(Point(p.x + i, p.y));
         }
+
+        // Faz a contagem do número de casas que serão limpas
         for (std::size_t i = 0; i < R->size(); i++)
             for (std::size_t j = 0; j < R->at(i)->size(); j++)
                 sum += R->at(i)->at(j);
+
+        // Deletando a matriz R auxiliar
         for (std::size_t i = 0; i < R->size(); i++)
             delete R->at(i);
         delete R;
+
         return sum;
     }
 
 
 };
 
+// Classe que soluciona o problema.
 class Solver {
 
  private:
 
     XMLParser *parser;
 
+    // Método para converter uma matriz feita em string para uma matriz de inteiros
     ListList *convert(std::string matrix, Point dimension) {
+        // Nova matriz de inteiros
         ListList *new_matrix = new ListList(dimension.y);
+
+        // Limpa as quebras de linhas
         matrix.erase(remove(matrix.begin(), matrix.end(), '\n'), matrix.end());
         int x = 0;
         int y = 0;
+        // Inicializa a nova matriz
         for (int i = 0; i < dimension.y; i++)
             new_matrix->push_back(new ListInt(dimension.x));
 
+        // Percorrer cada caracter da matriz em string
         for (auto c : matrix) {
+            // Faz a conversão de ascii para inteiro
             new_matrix->at(y)->push_back(int(c) - int('0'));
+            // Atualiza a coluna
             x++;
+            // Se a coluna for maior que a dimensão
             if (x >= dimension.x) {
+                // Reseta a coluna
                 x = 0;
+                // Incrementa a linha
                 y++;
             }
         }
@@ -424,6 +518,7 @@ class Solver {
  public:
 
     Solver() {
+        // Criando as tags do exercicio
         ListString tags(10);
         tags.push_back("cenarios");
         tags.push_back("cenario");
@@ -443,9 +538,12 @@ class Solver {
     }
 
     void solve() {
+
+        // Entrando com o nome do arquivo
         char file_name[100];
         std::cin >> file_name;
 
+        // Obtendo o conteúdo do arquivo
         std::ifstream file;
         std::string xml = "";
         file.open(file_name);
@@ -453,11 +551,13 @@ class Solver {
         while (getline(file, line)) xml += line + "\n";
         file.close();
 
-
+        // Verificando se o xml é válido
         if (!parser->isValid(xml)) {
             std::cout << "erro" << std::endl << std::endl;
             return;
         }
+
+        // Obtendo as informações de cada cenário
         ListString *names = parser->get_tags_contents(xml, "nome");
         ListString *width = parser->get_tags_contents(xml, "largura");
         ListString *height = parser->get_tags_contents(xml, "altura");
@@ -465,18 +565,25 @@ class Solver {
         ListString *robot_ys = parser->get_tags_contents(xml, "y");
         ListString *matrices = parser->get_tags_contents(xml, "matriz");
 
+
+        // For que passará por cada cenário analisando
         Analyzer analyzer;
         for (std::size_t i = 0; i < names->size(); i++) {
+
+            // Analisando o cenário
             Point robot = Point(std::stoi(robot_xs->at(i)), std::stoi(robot_ys->at(i)));
             Point dimension = Point(std::stoi(width->at(i)), std::stoi(height->at(i)));
             ListList *matrix = convert(matrices->at(i), dimension);
             std::cout << names->at(i) << " " << analyzer.analyze(robot, dimension, *matrix) << std::endl;
 
+            // Destruindo a metriz criada
             for (std::size_t i = 0; i < matrix->size(); i++)
                 delete matrix->at(i);
             delete matrix;
         }
         std::cout << std::endl;
+
+        // Deletando as informações obtidas
         delete names;
         delete width;
         delete height;
@@ -489,8 +596,10 @@ class Solver {
 
 int main()
 {
+    // Instanciando um solucionador para resolver o problema
     Solver *solver = new Solver();
 
+    // Resolvendo o problema
     solver->solve();
 
     return 0;
