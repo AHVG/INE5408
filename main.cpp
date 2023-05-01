@@ -303,28 +303,40 @@ class XMLParser {
         return tags_stack.empty();
     }
 
+    // Função para retornar a próxima tag de fechamento
+    // Off set é para não empilhar a tag de abertura já
+    // inserida no início do algoritmo
     std::size_t get_next_closing_tag(std::string xml, std::size_t index, std::size_t off_set) {
-        std::size_t closing_tag_index = 0;
         std::size_t xml_len = xml.length();
 
+        // A tag de abertura e fechamento que vai ser analisada
         std::string opening_tag = opening_tags->at(index);
         std::string closing_tag = closing_tags->at(index);
 
+        // Instanciando uma pilha de tags com uma tag de abertura já inserida
         LinkedStack<std::string> tags;
         tags.push(opening_tag);
+
+        // Índice da última tag de fechamento encontrada (vai ser a tag que queremos)
         std::size_t last_closing_tag_index = 0;
+        // For que vai percorrer o xml até encontrar a tag de fechamento
         for (size_t i = off_set; i < xml_len; i++) {
             
+            // Se tiver uma tag de abertura vai inserir na pilha
             if (opening_tag.length() <= xml_len - i)
                 if (xml.substr(i, opening_tag.length()) == opening_tag)
                     tags.push(opening_tag);
 
+            // Se tiver uma tag de fechamento vai retirar da pilha a tag de abertura e
+            // armazenar o índice da tag de fechamento
             if (closing_tag.length() <= xml_len - i)
                 if (xml.substr(i, closing_tag.length()) == closing_tag) {
                         tags.pop();
                         last_closing_tag_index = i;
                 }
             
+            // Quando estiver vazia a pilha, quer dizer que já encontramos a tag de fechamento
+            // que queriamos
             if (tags.empty())
                 break;
         }
@@ -333,9 +345,6 @@ class XMLParser {
     }
 
     // Função que retorna a lista de conteudo da tag escolhida
-    // Oberve que esta função tem limitações, mas para o presente projeto
-    // funciona perfeitamente. Por exemplo, mesmas tags uma dentro da outra
-    // a função não será capaz de analisar.
     ListString *get_tags_contents(std::string xml, std::string tag) {
         // Instanciando os conteúdos da tag com 200, apenas porque nenhum
         // arquivo passa de 102
@@ -364,7 +373,7 @@ class XMLParser {
             // Calcula o indice do início do conteúdo
             opening_tag_index += tag.length();
 
-            // Encontra a tag de fechamento correspondente (Mudar para ser mais geral possível)
+            // Encontra a tag de fechamento correspondente
             std::size_t closing_tag_index = get_next_closing_tag(xml, index, opening_tag_index);
 
             // Calcula o tamanho do conteúdo
