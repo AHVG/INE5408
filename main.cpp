@@ -118,27 +118,14 @@ class ArrayList {
         return at(index);
     }
     const T& at(std::size_t index) const {
-        return at(index);
+        if (index > size_ || index < 0)
+            throw std::out_of_range("Index inválido!");
+        return contents[index];
     }
     const T& operator[](std::size_t index) const {
         return at(index);
     }
 
-    const ArrayList &operator=(const ArrayList &other) {
-
-        delete contents;
-        max_size_ = other.max_size();
-        contents = new T[max_size()];
-        size_ = other.size();
-
-        for (std::size_t i = 0; i < size(); i++)
-            contents[i] = other.at(i);
-
-        return *this;
-    }
-
-
-    // descricao do 'operator []' na FAQ da disciplina
  private:
     T* contents;
     std::size_t size_;
@@ -178,13 +165,13 @@ class LinkedStack {
             current = next;
         }
         size_ = 0;
-    }  // limpa pilha
+    }
 
     void push(const T& data) {
         Node *new_top = new Node(data, top_);
         top_ = new_top;
         size_++;
-    }  // empilha
+    }
 
     T pop() {
         if (empty())
@@ -195,35 +182,20 @@ class LinkedStack {
         top_ = next;
         size_--;
         return data;
-    }  // desempilha
+    }
 
     T& top() const {
         if (empty())
             throw std::out_of_range("Pilha vazia!");
         return top_->data();
-    }  // dado no topo
+    }
 
     bool empty() const {
         return size_ == 0;
-    }  // pilha vazia
+    }
 
     std::size_t size() const {
         return size_;
-    }  // tamanho da pilha
-
-    // Sem const
-    LinkedStack &operator=(LinkedStack &other) {
-        LinkedStack aux;
-        std::size_t other_size;
-        while (!other.empty())
-            aux.push(other.pop());
-        clear();
-        while (!aux.empty()) {
-            T data = aux.pop();
-            push(data);
-            other.push(data);
-        }
-        return *this;
     }
 
  private:
@@ -272,7 +244,7 @@ class XMLParser {
     ListString *closing_tags;
 
  public:
-    // https://pt.stackoverflow.com/questions/410527/passar-objeto-de-classe-como-par%C3%A2metro-de-construtor-em-c
+    
     XMLParser(ListString &tags) {
         opening_tags = new ListString(tags.size());
         closing_tags = new ListString(tags.size());
@@ -280,6 +252,10 @@ class XMLParser {
             opening_tags->push_back("<" + tags[i] + ">");
             closing_tags->push_back("</" + tags[i] + ">");
         }
+    }
+    ~XMLParser() {
+        delete opening_tags;
+        delete closing_tags;
     }
 
     bool isValid(std::string xml) {
@@ -329,12 +305,14 @@ class XMLParser {
     }
 
     ListString *get_tags_contents(std::string xml, ListString &tag_hierarchy) {
-        ListString *contents = new ListString(200);
+        ListString *contents;
         for (std::size_t i = 0; i < tag_hierarchy.size(); i++) {
             std::string aux = "";
             contents = get_tags_contents(xml, tag_hierarchy[i]);
             for (std::size_t i = 0; i < contents->size(); i++)
                 aux += contents->at(i);
+            if (i + 1 != tag_hierarchy.size())
+                delete contents;
             xml = aux;
         }
         return contents;
@@ -408,6 +386,9 @@ class Analyzer {
         for (std::size_t i = 0; i < R->size(); i++)
             for (std::size_t j = 0; j < R->at(i)->size(); j++)
                 sum += R->at(i)->at(j);
+        for (std::size_t i = 0; i < R->size(); i++)
+            delete R->at(i);
+        delete R;
         return sum;
     }
 
@@ -490,8 +471,18 @@ class Solver {
             Point dimension = Point(std::stoi(width->at(i)), std::stoi(height->at(i)));
             ListList *matrix = convert(matrices->at(i), dimension);
             std::cout << names->at(i) << " " << analyzer.analyze(robot, dimension, *matrix) << std::endl;
+
+            for (std::size_t i = 0; i < matrix->size(); i++)
+                delete matrix->at(i);
+            delete matrix;
         }
         std::cout << std::endl;
+        delete names;
+        delete width;
+        delete height;
+        delete robot_xs;
+        delete robot_ys;
+        delete matrices;
     }
 
 };
