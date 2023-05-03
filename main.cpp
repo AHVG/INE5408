@@ -268,7 +268,7 @@ class XMLParser {
     }
 
     // Método utilizado para verificar se o xml é válido
-    bool isValid(std::string xml) {
+    bool is_valid(std::string xml) {
         size_t xml_len = xml.length();
 
         // Instanciação da pilha de tags, à principio vazia.
@@ -590,7 +590,7 @@ class Solver {
         file.close();
 
         // Verificando se o xml é válido
-        if (!parser->isValid(xml)) {
+        if (!parser->is_valid(xml)) {
             std::cout << "erro" << std::endl << std::endl;
             return;
         }
