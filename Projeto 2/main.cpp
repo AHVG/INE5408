@@ -143,9 +143,9 @@ int main() {
 
     Arvore arvore;
 
-    std::string file_name("dicionarios/dicionario1.dic");
+    std::string file_name;
 
-    // std::cin >> file_name;  // entrada
+    std::cin >> file_name;  // entrada
 
     // Leitura do dic
     std::ifstream file;
@@ -180,7 +180,7 @@ int main() {
     for (int i = 0; i < palavras_dic.size(); i++)
         arvore.inserir(palavras_dic[i], posicoes[i], comprimentos[i]);
     
-    arvore.mostrar();
+    // arvore.mostrar();
 
     // Leitura das palavras (armazenar as palavras num vector)
     std::vector<std::string> palavras;
@@ -200,7 +200,8 @@ int main() {
             std::cout << palavra << " is not prefix" << std::endl;
         } else {
             std::cout << palavra << " is prefix of " << aux->contar_palavras() << " words" << std::endl;
-            std::cout << palavra << " is at (" << aux->posicao << "," << aux->comprimento << ")" << std::endl;
+            if (aux->comprimento)
+                std::cout << palavra << " is at (" << aux->posicao << "," << aux->comprimento << ")" << std::endl;
         }
     }
 
