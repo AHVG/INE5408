@@ -139,7 +139,7 @@ class Arvore {
 
 int main() {
 
-    Arvore arvore;
+/*    Arvore arvore;
 
     arvore.inserir("abc", 100, 100);
     std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
@@ -150,6 +150,29 @@ int main() {
 
     std::cout << "Mostrando arvore..." << std::endl;
     arvore.mostrar();
+*/
+    std::string filename;
+    std::string word;
+
+    std::cin >> filename;  // entrada
+
+    // Leitura do dic
+    // TODO
+
+    // Construcao da arvore
+    // TODO
+
+    // Leitura das palavras (armazenar as palavras num vector) TODO
+    while (1) {
+        std::cin >> word;
+        if (word.compare("0") == 0) {
+            break;
+        }
+        std::cout << word << std::endl;
+    }
+
+    // Gerar as entradas desejadas
+    // TODO
 
     return 0;
 }
