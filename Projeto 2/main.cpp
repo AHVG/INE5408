@@ -35,7 +35,6 @@ class NoArvore {
         return i;
     }
 
-
     void inserir(std::string palavra, int indice, unsigned long posicao_, unsigned long comprimento_) {
         int i = procurar_letra(palavra[indice]);
         if (filhos[i]) {
@@ -64,16 +63,22 @@ class NoArvore {
         delete this;
     }
 
-    int contar_folhas() {
-        int numero_de_nos = 1;
+    int contar_palavras() {
+        int numero_de_nos = 0;
+        if (comprimento)
+            numero_de_nos = 1;  
         for (int i = 0; filhos[i]; i++)
-            numero_de_nos += filhos[i]->contar_folhas();
+            numero_de_nos += filhos[i]->contar_palavras();
         return numero_de_nos;
     }
 
-    int prefix(std::string palavra, int indice) {
-        
-        return 0;
+    NoArvore *prefix(std::string palavra, int indice) {
+        int i = procurar_letra(palavra[indice]);
+        if (palavra.length() - 1 == indice)
+            return this;
+        if (filhos[i])
+            return filhos[i]->prefix(palavra, indice + 1);
+        return nullptr;
     }
 
     void mostrar() {
@@ -116,7 +121,7 @@ class Arvore {
         }
     }
 
-    void prefix(std::string palavra) {
+    NoArvore *prefix(std::string palavra) {
         return raiz->prefix(palavra, 0);
     }
 
@@ -136,6 +141,15 @@ int main() {
 
     Arvore arvore;
 
+    arvore.inserir("abc", 100, 100);
+    std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
+    arvore.inserir("adp", 100, 100);
+    std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
+    arvore.inserir("ad", 100, 100);
+    std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
+
+    std::cout << "Mostrando arvore..." << std::endl;
+    arvore.mostrar();
 
     return 0;
 }
