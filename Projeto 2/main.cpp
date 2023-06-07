@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-
+#include <fstream>
 
 class NoArvore {
     public:
@@ -151,13 +151,20 @@ int main() {
     std::cout << "Mostrando arvore..." << std::endl;
     arvore.mostrar();
 */
-    std::string filename;
+    std::string file_name;
     std::string word;
 
-    std::cin >> filename;  // entrada
+    std::cin >> file_name;  // entrada
 
     // Leitura do dic
-    // TODO
+    std::ifstream file;
+    std::string dic = "";
+    file.open(file_name);
+    std::string line;
+    while (getline(file, line)) dic += line + "\n"; // Sera que precisa do "\n"?
+    file.close();
+
+    std::cout << dic << std::endl;
 
     // Construcao da arvore
     // TODO
