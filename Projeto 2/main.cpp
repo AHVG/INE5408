@@ -59,8 +59,8 @@ class NoArvore {
     void deletar() {
         for (int i = 0; filhos[i]; i++)
             filhos[i]->deletar();
-        std::cout << "Deletando ";
-        mostrar();
+        // std::cout << "Deletando ";
+        // mostrar();
         delete this;
     }
 
@@ -116,7 +116,8 @@ class Arvore {
             return;
         
         for (int i = 0; raiz->filhos[i]; i++) {
-            std::cout << "Nivel: " << nivel << std::endl; 
+            std::cout << "Nivel: " << nivel << std::endl;
+            std::cout << "Letra pai: " << raiz->letra << std::endl; 
             raiz->filhos[i]->mostrar();
             mostrar_arvore(raiz->filhos[i], nivel + 1);
         }
@@ -140,22 +141,12 @@ class Arvore {
 
 int main() {
 
-/*    Arvore arvore;
+    Arvore arvore;
 
-    arvore.inserir("abc", 100, 100);
-    std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
-    arvore.inserir("adp", 100, 100);
-    std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
-    arvore.inserir("ad", 100, 100);
-    std::cout << "Prefix: " << arvore.prefix("a")->contar_palavras() << std::endl;
-
-    std::cout << "Mostrando arvore..." << std::endl;
-    arvore.mostrar();
-*/
-    std::string file_name;
+    std::string file_name("dicionarios/dicionario1.dic");
     std::string word;
 
-    std::cin >> file_name;  // entrada
+    // std::cin >> file_name;  // entrada
 
     // Leitura do dic
     std::ifstream file;
@@ -165,41 +156,43 @@ int main() {
     while (getline(file, line)) dic += line + "\n"; // Sera que precisa do "\n"?
     file.close();
 
-    std::cout << dic << std::endl;
-
     // Pegar cada plavra do dic e suas informacoes como posicao e comprimento
     std::vector<std::string> palavras_dic;
     std::vector<unsigned long> posicoes;
-    std::vector<unsigned long> comprimento;
+    std::vector<unsigned long> comprimentos;
     
     std::size_t off_set = 0;
     while (1) {
         std::size_t inicio = dic.find('[', off_set);
         std::size_t fim = dic.find(']', off_set);
+        off_set = fim + 1;
         if (inicio == std::string::npos)
             break;
         std::string palavra = dic.substr(inicio + 1, fim - inicio - 1);
-        //unsigned long posicao = ;
-        //unsigned long comprimento = ;
-        off_set = fim + 1;
+        unsigned long posicao = inicio;
+        unsigned long comprimento = dic.find('[', off_set) == std::string::npos ? dic.length() : dic.find('[', off_set);
+        comprimento += - inicio - 1;
         palavras_dic.push_back(palavra);
+        posicoes.push_back(posicao);
+        comprimentos.push_back(comprimento);
     }
 
-    for (auto palavra : palavras_dic) {
-        std::cout << palavra << std::endl;
-    }
+    
 
     // Construcao da arvore
-    // TODO
+    for (int i = 0; i < palavras_dic.size(); i++)
+        arvore.inserir(palavras_dic[i], posicoes[i], comprimentos[i]);
+    
+    arvore.mostrar();
 
     // Leitura das palavras (armazenar as palavras num vector) TODO
-    while (1) {
-        std::cin >> word;
-        if (word.compare("0") == 0) {
-            break;
-        }
-        std::cout << word << std::endl;
-    }
+    // while (1) {
+    //     std::cin >> word;
+    //     if (word.compare("0") == 0) {
+    //         break;
+    //     }
+    //     std::cout << word << std::endl;
+    // }
 
     // Gerar as entradas desejadas
     // TODO
