@@ -76,7 +76,7 @@ class NoArvore {
     NoArvore *prefix(std::string palavra, int indice) {
         int i = procurar_letra(palavra[indice]);
         if (palavra.length() - 1 == indice)
-            return this;
+            return filhos[i];
         if (filhos[i])
             return filhos[i]->prefix(palavra, indice + 1);
         return nullptr;
@@ -144,7 +144,6 @@ int main() {
     Arvore arvore;
 
     std::string file_name("dicionarios/dicionario1.dic");
-    std::string word;
 
     // std::cin >> file_name;  // entrada
 
@@ -177,25 +176,33 @@ int main() {
         comprimentos.push_back(comprimento);
     }
 
-    
-
     // Construcao da arvore
     for (int i = 0; i < palavras_dic.size(); i++)
         arvore.inserir(palavras_dic[i], posicoes[i], comprimentos[i]);
     
     arvore.mostrar();
 
-    // Leitura das palavras (armazenar as palavras num vector) TODO
-    // while (1) {
-    //     std::cin >> word;
-    //     if (word.compare("0") == 0) {
-    //         break;
-    //     }
-    //     std::cout << word << std::endl;
-    // }
+    // Leitura das palavras (armazenar as palavras num vector)
+    std::vector<std::string> palavras;
+    while (1) {
+        std::string palavra;
+        std::cin >> palavra;
+        if (palavra.compare("0") == 0) {
+            break;
+        }
+        palavras.push_back(palavra);
+    }
 
     // Gerar as entradas desejadas
-    // TODO
+    for (auto palavra : palavras) {
+        NoArvore *aux = arvore.prefix(palavra);
+        if (aux == nullptr) {
+            std::cout << palavra << " is not prefix" << std::endl;
+        } else {
+            std::cout << palavra << " is prefix of " << aux->contar_palavras() << " words" << std::endl;
+            std::cout << palavra << " is at (" << aux->posicao << "," << aux->comprimento << ")" << std::endl;
+        }
+    }
 
     return 0;
 }
