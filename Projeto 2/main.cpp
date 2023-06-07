@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <string>
 #include <fstream>
 
@@ -165,6 +166,28 @@ int main() {
     file.close();
 
     std::cout << dic << std::endl;
+
+    // Pegar cada plavra do dic e suas informacoes como posicao e comprimento
+    std::vector<std::string> palavras_dic;
+    std::vector<unsigned long> posicoes;
+    std::vector<unsigned long> comprimento;
+    
+    std::size_t off_set = 0;
+    while (1) {
+        std::size_t inicio = dic.find('[', off_set);
+        std::size_t fim = dic.find(']', off_set);
+        if (inicio == std::string::npos)
+            break;
+        std::string palavra = dic.substr(inicio + 1, fim - inicio - 1);
+        //unsigned long posicao = ;
+        //unsigned long comprimento = ;
+        off_set = fim + 1;
+        palavras_dic.push_back(palavra);
+    }
+
+    for (auto palavra : palavras_dic) {
+        std::cout << palavra << std::endl;
+    }
 
     // Construcao da arvore
     // TODO
