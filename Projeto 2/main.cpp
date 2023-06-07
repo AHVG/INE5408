@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 
-#define LETRAS_ALFABETO 27
+#define LETRAS_ALFABETO 26
 
 class NoArvore {
     public:
@@ -146,9 +146,9 @@ int main() {
 
     Arvore arvore;
 
-    std::string file_name("dicionarios/dicionario2.dic");
+    std::string file_name;
 
-    // std::cin >> file_name;  // entrada
+    std::cin >> file_name;  // entrada
 
     // Leitura do dic
     std::ifstream file;
@@ -162,40 +162,25 @@ int main() {
     std::vector<std::string> palavras_dic;
     std::vector<unsigned long> posicoes;
     std::vector<unsigned long> comprimentos;
-    
     std::size_t off_set = 0;
-    std::size_t maximo_de_interacoes = 30000, interacao = 0;
     while (1) {
         std::size_t inicio = dic.find('[', off_set);
         std::size_t fim = dic.find(']', off_set);
-        off_set = fim + 1;
         if (inicio == std::string::npos)
             break;
         std::string palavra = dic.substr(inicio + 1, fim - inicio - 1);
         unsigned long posicao = inicio;
-        unsigned long comprimento = dic.find('[', off_set) == std::string::npos ? dic.length() : dic.find('[', off_set);
-        comprimento += - inicio - 1;
+        unsigned long comprimento = dic.find('\n', off_set) == std::string::npos ? dic.length() : dic.find('\n', off_set);
+        off_set = comprimento + 1;
+        comprimento -= inicio;
         palavras_dic.push_back(palavra);
         posicoes.push_back(posicao);
         comprimentos.push_back(comprimento);
-        if (interacao > maximo_de_interacoes) {
-            std::cout << "Erro no loop!" << std::endl;
-            return 1;
-        }
     }
-    std::cout << "Aqui" << std::endl;
 
     // Construcao da arvore
-    for (int i = 0; i < palavras_dic.size(); i++) {
-        std::cout << palavras_dic[i] << std::endl;
+    for (int i = 0; i < palavras_dic.size(); i++)
         arvore.inserir(palavras_dic[i], posicoes[i], comprimentos[i]);
-    }
-    
-    for (int i = 0; i < LETRAS_ALFABETO; i++) {
-        if (arvore.raiz->filhos[i])
-            std::cout << arvore.raiz->filhos[i]->letra << std::endl;
-    }
-    // arvore.mostrar();
 
     // Leitura das palavras (armazenar as palavras num vector)
     std::vector<std::string> palavras;
