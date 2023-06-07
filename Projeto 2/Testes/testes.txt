@@ -1,0 +1,243 @@
+case=1
+input=dicionario1.dic bear bell bid bu bull buy but sell stock stop 0
+output=bear is prefix of 1 words
+bear is at (0,149)
+bell is prefix of 1 words
+bell is at (150,122)
+bid is prefix of 1 words
+bid is at (273,82)
+bu is prefix of 2 words
+bull is prefix of 1 words
+bull is at (356,113)
+buy is prefix of 1 words
+buy is at (470,67)
+but is not prefix
+sell is prefix of 1 words
+sell is at (538,97)
+stock is prefix of 1 words
+stock is at (636,79)
+stop is prefix of 1 words
+stop is at (716,92)
+
+case=2
+input=dicionario2.dic a arar arau arauto arautos derro derrocar derrocaram desabrochar problema 0
+output=a is prefix of 2912 words
+arar is prefix of 1 words
+arar is at (265499,65)
+arau is prefix of 2 words
+arauto is prefix of 1 words
+arauto is at (265611,350)
+arautos is not prefix
+derro is prefix of 5 words
+derrocar is prefix of 1 words
+derrocar is at (1143535,74)
+derrocaram is not prefix
+desabrochar is prefix of 1 words
+desabrochar is at (1144618,68)
+problema is prefix of 3 words
+problema is at (3034505,229)
+
+case=3
+input=dicionario2.dic aba acidar advertencia airoso alojar amorifero antagonista apelabilidade arbustiforme arroz astucia autografar bailarino bastonete bicorne bonacheirao cabacal calibrar cao carro caviar chapelada cintilar coesor compleicao confirmatorio contido cornicho crescer dama delimitar descartar despegar diferente divergir ecumenico emolumento enfastiar enxabido escombros espingardeiro estore executar faisao fermentaceo fleumatico fragmentar gaio genuinamente granal hematoma honroso impavido inconciliavel infamia insurgir investigar joelhar lanceiro lexicografia longitudinal malabarismo marginal melga microbio mochila mortal nascedouro nogueiral odor ornitorrinco palmela paroquiano pedinchao peripecia pincel poleiro povo pretoria prosopopeia quadripartido radiografar recente regularizar resfolego ribalta ruminar saprofita semiviver simpatia solidificar subversivo tacito templario tiroxina transgredir troglodita usurpatorio ventral viradela zurrar 0
+output=aba is prefix of 34 words
+aba is at (0,136)
+acidar is prefix of 1 words
+acidar is at (36674,46)
+advertencia is prefix of 1 words
+advertencia is at (67729,119)
+airoso is prefix of 1 words
+airoso is at (99833,65)
+alojar is prefix of 1 words
+alojar is at (133511,119)
+amorifero is prefix of 1 words
+amorifero is at (169994,69)
+antagonista is prefix of 1 words
+antagonista is at (204749,940)
+apelabilidade is prefix of 1 words
+apelabilidade is at (237339,138)
+arbustiforme is prefix of 1 words
+arbustiforme is at (268210,78)
+arroz is prefix of 3 words
+arroz is at (304188,201)
+astucia is prefix of 2 words
+astucia is at (340808,325)
+autografar is prefix of 1 words
+autografar is at (376635,136)
+bailarino is prefix of 1 words
+bailarino is at (411500,177)
+bastonete is prefix of 1 words
+bastonete is at (449591,105)
+bicorne is prefix of 2 words
+bicorne is at (485468,97)
+bonacheirao is prefix of 1 words
+bonacheirao is at (527653,46)
+cabacal is prefix of 1 words
+cabacal is at (571223,416)
+calibrar is prefix of 1 words
+calibrar is at (611191,28)
+cao is prefix of 4 words
+cao is at (650269,409)
+carro is prefix of 6 words
+carro is at (690607,114)
+caviar is prefix of 1 words
+caviar is at (730983,220)
+chapelada is prefix of 1 words
+chapelada is at (770283,153)
+cintilar is prefix of 1 words
+cintilar is at (810743,66)
+coesor is prefix of 1 words
+coesor is at (852754,245)
+compleicao is prefix of 1 words
+compleicao is at (892128,69)
+confirmatorio is prefix of 1 words
+confirmatorio is at (931169,73)
+contido is prefix of 1 words
+contido is at (968700,102)
+cornicho is prefix of 1 words
+cornicho is at (1009180,164)
+crescer is prefix of 1 words
+crescer is at (1049177,55)
+dama is prefix of 4 words
+dama is at (1089931,126)
+delimitar is prefix of 1 words
+delimitar is at (1124117,107)
+descartar is prefix of 1 words
+descartar is at (1157765,144)
+despegar is prefix of 1 words
+despegar is at (1191194,54)
+diferente is prefix of 1 words
+diferente is at (1233713,157)
+divergir is prefix of 1 words
+divergir is at (1275287,326)
+ecumenico is prefix of 1 words
+ecumenico is at (1317264,141)
+emolumento is prefix of 1 words
+emolumento is at (1357691,240)
+enfastiar is prefix of 1 words
+enfastiar is at (1388951,105)
+enxabido is prefix of 1 words
+enxabido is at (1416646,49)
+escombros is prefix of 1 words
+escombros is at (1459820,131)
+espingardeiro is prefix of 1 words
+espingardeiro is at (1495676,124)
+estore is prefix of 1 words
+estore is at (1532307,151)
+executar is prefix of 1 words
+executar is at (1571116,69)
+faisao is prefix of 1 words
+faisao is at (1607016,189)
+fermentaceo is prefix of 1 words
+fermentaceo is at (1644946,42)
+fleumatico is prefix of 1 words
+fleumatico is at (1680103,432)
+fragmentar is prefix of 2 words
+fragmentar is at (1716381,95)
+gaio is prefix of 3 words
+gaio is at (1758503,182)
+genuinamente is prefix of 1 words
+genuinamente is at (1801946,97)
+granal is prefix of 1 words
+granal is at (1845341,89)
+hematoma is prefix of 1 words
+hematoma is at (1883403,130)
+honroso is prefix of 1 words
+honroso is at (1932594,67)
+impavido is prefix of 1 words
+impavido is at (1973107,206)
+inconciliavel is prefix of 1 words
+inconciliavel is at (2006254,107)
+infamia is prefix of 1 words
+infamia is at (2043906,354)
+insurgir is prefix of 1 words
+insurgir is at (2080195,80)
+investigar is prefix of 1 words
+investigar is at (2115573,120)
+joelhar is prefix of 1 words
+joelhar is at (2154989,49)
+lanceiro is prefix of 1 words
+lanceiro is at (2193578,215)
+lexicografia is prefix of 1 words
+lexicografia is at (2232328,498)
+longitudinal is prefix of 1 words
+longitudinal is at (2270803,70)
+malabarismo is prefix of 1 words
+malabarismo is at (2310087,77)
+marginal is prefix of 2 words
+marginal is at (2349042,78)
+melga is prefix of 2 words
+melga is at (2389323,143)
+microbio is prefix of 3 words
+microbio is at (2433002,215)
+mochila is prefix of 1 words
+mochila is at (2472213,341)
+mortal is prefix of 1 words
+mortal is at (2516415,103)
+nascedouro is prefix of 1 words
+nascedouro is at (2557629,134)
+nogueiral is prefix of 1 words
+nogueiral is at (2601589,22)
+odor is prefix of 6 words
+odor is at (2642186,224)
+ornitorrinco is prefix of 1 words
+ornitorrinco is at (2686767,339)
+palmela is prefix of 1 words
+palmela is at (2727790,736)
+paroquiano is prefix of 1 words
+paroquiano is at (2769192,43)
+pedinchao is prefix of 1 words
+pedinchao is at (2814675,244)
+peripecia is prefix of 1 words
+peripecia is at (2852553,233)
+pincel is prefix of 3 words
+pincel is at (2893597,163)
+poleiro is prefix of 1 words
+poleiro is at (2939284,172)
+povo is prefix of 3 words
+povo is at (2980640,664)
+pretoria is prefix of 2 words
+pretoria is at (3023203,64)
+prosopopeia is prefix of 1 words
+prosopopeia is at (3060215,349)
+quadripartido is prefix of 1 words
+quadripartido is at (3103576,127)
+radiografar is prefix of 1 words
+radiografar is at (3141034,102)
+recente is prefix of 1 words
+recente is at (3174308,61)
+regularizar is prefix of 1 words
+regularizar is at (3207339,84)
+resfolego is prefix of 1 words
+resfolego is at (3241126,91)
+ribalta is prefix of 1 words
+ribalta is at (3274121,292)
+ruminar is prefix of 1 words
+ruminar is at (3311135,53)
+saprofita is prefix of 1 words
+saprofita is at (3350542,248)
+semiviver is prefix of 1 words
+semiviver is at (3388467,58)
+simpatia is prefix of 1 words
+simpatia is at (3429180,251)
+solidificar is prefix of 1 words
+solidificar is at (3469784,86)
+subversivo is prefix of 1 words
+subversivo is at (3508584,98)
+tacito is prefix of 1 words
+tacito is at (3546257,232)
+templario is prefix of 1 words
+templario is at (3586868,45)
+tiroxina is prefix of 1 words
+tiroxina is at (3627672,223)
+transgredir is prefix of 1 words
+transgredir is at (3666728,60)
+troglodita is prefix of 1 words
+troglodita is at (3703315,382)
+usurpatorio is prefix of 1 words
+usurpatorio is at (3746687,68)
+ventral is prefix of 1 words
+ventral is at (3782290,88)
+viradela is prefix of 1 words
+viradela is at (3820832,102)
+zurrar is prefix of 1 words
+zurrar is at (3863377,43)
