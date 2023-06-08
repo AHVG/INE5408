@@ -20,7 +20,7 @@ class NoArvore {
     NoArvore(char letra_, unsigned long posicao_, unsigned long comprimento_) : NoArvore(letra_, posicao_) {comprimento = comprimento_;}
     ~NoArvore() { }
 
-    int procurar_letra(char letra) {
+    int procurarLetra(char letra) {
         int i;
         for (i = 0; filhos[i]; i++) if (filhos[i]->letra == letra) break;
         return i;
@@ -53,7 +53,7 @@ class Arvore {
     void inserir(std::string palavra, int posicao, int comprimento) {
         NoArvore *atual = raiz;
         for (int i = 0; i < palavra.length(); i++) {
-            int j = atual->procurar_letra(palavra[i]);
+            int j = atual->procurarLetra(palavra[i]);
             if (!atual->filhos[j])
                 atual->filhos[j] = new NoArvore(palavra[i]);
             atual = atual->filhos[j];
@@ -63,10 +63,10 @@ class Arvore {
         atual->posicao = posicao;
     }
 
-    NoArvore *prefixo(std::string palavra) {
+    NoArvore *prefixos(std::string palavra) {
         NoArvore *atual = raiz;
         for (int i = 0; i < palavra.length(); i++) {
-            int j = atual->procurar_letra(palavra[i]);
+            int j = atual->procurarLetra(palavra[i]);
             if (!atual->filhos[j])
                 return atual->filhos[j];
             atual = atual->filhos[j];
@@ -93,7 +93,7 @@ int main() {
     file.close();
 
     // Pegar cada plavra do dic e suas informacoes como posicao e comprimento
-    std::vector<std::string> palavras_dic;
+    std::vector<std::string> palavrasDic;
     std::vector<unsigned long> posicoes;
     std::vector<unsigned long> comprimentos;
     std::size_t off_set = 0;
@@ -106,13 +106,13 @@ int main() {
         unsigned long comprimento = dic.find('\n', off_set) == std::string::npos ? dic.length() : dic.find('\n', off_set);
         off_set = comprimento + 1;
         comprimento -= inicio;
-        palavras_dic.push_back(palavra);
+        palavrasDic.push_back(palavra);
         posicoes.push_back(posicao);
         comprimentos.push_back(comprimento);
     }
 
     // Construcao da arvore
-    for (int i = 0; i < palavras_dic.size(); i++) arvore.inserir(palavras_dic[i], posicoes[i], comprimentos[i]);
+    for (int i = 0; i < palavrasDic.size(); i++) arvore.inserir(palavrasDic[i], posicoes[i], comprimentos[i]);
 
     // Leitura das palavras (armazenar as palavras num vector)
     std::vector<std::string> palavras;
@@ -125,7 +125,7 @@ int main() {
 
     // Gerar as entradas desejadas
     for (auto palavra : palavras) {
-        NoArvore *aux = arvore.prefixo(palavra);
+        NoArvore *aux = arvore.prefixos(palavra);
         if (!aux) {
             std::cout << palavra << " is not prefix" << std::endl;
         } else {
