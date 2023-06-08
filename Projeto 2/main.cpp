@@ -26,20 +26,7 @@ class NoArvore {
         return i;
     }
 
-    void deletar() {
-        for (int i = 0; filhos[i]; i++) filhos[i]->deletar();
-        delete this;
-    }
-
     unsigned long prefixos() {return prefixos_;}
-
-    void mostrar() {
-        std::cout << "No Arvore" << std::endl;
-        std::cout << "  Letra:       " << letra << std::endl;
-        std::cout << "  Posicao:     " << posicao << std::endl;
-        std::cout << "  Comprimento: " << comprimento << std::endl;
-        std::cout << std::endl;
-    }
 
     char letra;
     NoArvore *filhos[LETRAS_ALFABETO];
@@ -53,7 +40,15 @@ class Arvore {
  public:
 
     Arvore() {raiz = new NoArvore();}
-    ~Arvore() {raiz->deletar();}
+    ~Arvore() {deletar(raiz); raiz = nullptr;}
+
+    void deletar(NoArvore *raiz) {
+        for (int i = 0; i < LETRAS_ALFABETO; i++) {
+            if (!raiz->filhos[i]) break;
+            deletar(raiz->filhos[i]);
+        }
+        delete raiz;
+    }
 
     void inserir(std::string palavra, int posicao, int comprimento) {
         NoArvore *atual = raiz;
@@ -68,18 +63,6 @@ class Arvore {
         atual->posicao = posicao;
     }
 
-    void mostrar_arvore(NoArvore *raiz, int nivel) {
-        if (!raiz)
-            return;
-        
-        for (int i = 0; raiz->filhos[i]; i++) {
-            std::cout << "Nivel: " << nivel << std::endl;
-            std::cout << "Letra pai: " << raiz->letra << std::endl; 
-            raiz->filhos[i]->mostrar();
-            mostrar_arvore(raiz->filhos[i], nivel + 1);
-        }
-    }
-
     NoArvore *prefixo(std::string palavra) {
         NoArvore *atual = raiz;
         for (int i = 0; i < palavra.length(); i++) {
@@ -91,8 +74,6 @@ class Arvore {
         return atual;
     }
 
-    void mostrar() {mostrar_arvore(raiz, 0);}
-
     NoArvore *raiz;
 
 };
@@ -100,12 +81,10 @@ class Arvore {
 int main() {
 
     Arvore arvore;
-
     std::string file_name;
 
-    std::cin >> file_name;  // entrada
-
     // Leitura do dic
+    std::cin >> file_name;
     std::ifstream file;
     std::string dic = "";
     file.open(file_name);
@@ -130,7 +109,6 @@ int main() {
         palavras_dic.push_back(palavra);
         posicoes.push_back(posicao);
         comprimentos.push_back(comprimento);
-        std::cout << palavra << " " << posicao << " " << comprimento << std::endl;
     }
 
     // Construcao da arvore
