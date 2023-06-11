@@ -3,6 +3,7 @@
 #define STRUCTURES_AVL_TREE_H
 
 #include <algorithm>
+#include <cstdlib>
 #include "array_list.h"
 
 namespace structures {
@@ -12,18 +13,28 @@ template<typename T>
 class AVLTree {
 public:
     AVLTree() {
-        root = nullptr;
+        root_ = nullptr;
         size_ = 0;
     }
-    ~AVLTree() {}
+    ~AVLTree() {
+        ArrayList<T> a = pre_order();
+        while (!a.empty()) this->remove(a.pop_back());
+    }
 
-    void insert(const T& data) {}
+    void insert(const T& data) {
+        root_ = insert_(data, root_);
+        size_++;
+    }
 
-    void remove(const T& data) {}
+    void remove(const T& data) {
+        if (contains(data)) {
+            root_ = remove_(data, root_);
+            size_--;
+        }
+    }
 
     bool contains(const T& data) const {
-        if (root) return root->contains(data);
-        return false;
+        return contains_(data, root_);
     }
 
     bool empty() const {
@@ -35,122 +46,119 @@ public:
     }
 
     int height() const {
-        return root->height(root);
+        return height_(root_);
     }
 
     ArrayList<T> pre_order() const {
-        ArrayList<T> a;
-        if (!root) return a;
-        root->pre_order(a);
-        return a;
+        ArrayList<T> v;
+        if (root_) pre_order_(v, root_);
+        return v;
     }
 
     ArrayList<T> in_order() const {
-        ArrayList<T> a;
-        if (!root) return a;
-        root->in_order(a);
-        return a;
+        ArrayList<T> v;
+        if (root_) in_order(v, root_);
+        return v;
     }
 
     ArrayList<T> post_order() const {
-        ArrayList<T> a;
-        if (!root) return a;
-        root->post_order(a);
-        return a;
+        ArrayList<T> v;
+        if (root_) post_order(v, root_);
+        return v;
     }
 
 private:
     struct Node {
         explicit Node(const T& data_) {
             data = data_;
-            height_ = 0;
+            height = 0;
             left = nullptr;
             right = nullptr;
         }
 
         T data;
-        int height_;
+        int height;
         Node* left;
         Node* right;
 
-        void insert(const T& data_) {}
-
-        bool remove(const T& data_) {return false;}
-
-        bool contains(const T& data_) const {
-            if (data_ < data) {
-                if (left) return left->contains(data_);
-                return false;
-            } else if (data < data_) {
-                if (right) return right->contains(data_);
-                return false;
-            }
-            return true;
-        }
-
-        void updateHeight() {
-            std::max(height(left), height(right)) + 1;
-        }
-
-        Node* simpleLeft() {
-            Node *k1 = this->left;
-
-            this->left = k1->right;
-            k1->right = this;
-
-            updateHeight();
-            k1->updateHeight();
-
-            return k1;
-        }
-
-        Node* simpleRight() {
-            Node *k1 = this->right;
-
-            this->right = k1->left;
-            k1->left = this;
-
-            updateHeight();
-            k1->updateHeight();
-
-            return k1;
-        }
-
-        Node* doubleLeft() {
-            left = left->simpleRight();
-            return simpleLeft();
-        }
-
-        Node* doubleRight() {
-            right = right->simpleLeft();
-            return simpleRight();
-        }
-
-        void pre_order(ArrayList<T>& v) const {
-            v.push_back(data);
-            if (left) pre_order(v);
-            if (right) pre_order(v);
-        }
-
-        void in_order(ArrayList<T>& v) const {
-            if (left) in_order(v);
-            v.push_back(data);
-            if (right) in_order(v);
-        }
-
-        void post_order(ArrayList<T>& v) const {
-            if (left) post_order(v);
-            if (right) post_order(v);
-            v.push_back(data);
-        }
-
-        int height(Node *x) {
-            if (!x) return -1;
-            return x->height_;
-        }
     };
 
-    Node* root;
+    void insert_(const T& data_, Node *root) {
+    }
+
+    bool remove_(const T& data_, Node *root) {
+
+    }
+
+    bool contains_(const T& data_, Node *root) const {
+        if (!root) return false;
+        if (data_ < root->data) return contains_(data_, root->left);
+        else if(data_ > root->data) return contains_(data_, root->right);
+        else return true;
+    }
+
+    void updateHeight_(Node *root) {
+        root->height = std::max(height_(root->left), height_(root->right));
+    }
+
+    Node* simpleLeft_(Node *root) {
+        Node *k1 = root->left;
+        root->left = k1->right;
+        k1->right = root;
+
+        updateHeight_(root);
+        updateHeight_(k1);
+
+        return k1;
+    }
+
+    Node* simpleRight_(Node *root) {
+        Node *k1 = root->right;
+        root->right = k1->left;
+        k1->left = root;
+
+        updateHeight_(root);
+        updateHeight_(k1);
+
+        return k1;
+    }
+
+    Node* doubleLeft_(Node *root) {
+        root->left = simpleRight_(root->left);
+        return simpleLeft_(root);
+    }
+
+    Node* doubleRight_(Node *root) {
+        root->right = simpleLeft_(root->Right);
+        return simpleRight_(root);
+    }
+
+    void pre_order_(ArrayList<T>& v, Node *root) const {
+        if (!root) return;
+        v.push_back(root->data);
+        pre_order_(v, root->left);
+        pre_order_(v, root->right);
+    }
+
+    void in_order_(ArrayList<T>& v, Node *root) const {
+        if (!root) return;
+        in_order_(v, root->left);
+        v.push_back(root->data);
+        in_order_(v, root->right);
+    }
+
+    void post_order_(ArrayList<T>& v, Node *root) const {
+        if (!root) return;
+        post_order_(v, root->left);
+        post_order_(v, root->right);
+        v.push_back(root->data);
+    }
+
+    int height_(Node *root) {
+        return root ? root->height : -1;
+    }
+    
+    Node* root_;
     std::size_t size_;
 };
 
