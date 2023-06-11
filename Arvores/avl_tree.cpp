@@ -109,7 +109,30 @@ private:
     }
 
     Node *remove_(const T& data_, Node *root) {
-        return root;
+        if (!root) return root;
+        if (data_ < root->data) {
+            root->left = remove_(data_, root->left);
+            return updateZigueZiga(root);
+        } else if (data_ > root->data) {
+            root->right = remove_(data_, root->right);
+            return updateZigueZiga(root);
+        } else if (root->left && root->right) {
+            Node *tmp = min_node(root->right);
+            root->data = tmp->data;
+            root->right = remove_(tmp->data, root->right);
+            return updateZigueZiga(root);
+        } else if (root->left) {
+            Node *tmp = root->left;
+            delete root;
+            return tmp;
+        } else if (root->right) {
+            Node *tmp = root->right;
+            delete root;
+            return tmp;
+        } else {
+            delete root;
+            return nullptr;
+        }
     }
 
     bool contains_(const T& data_, Node *root) const {
@@ -179,6 +202,30 @@ private:
 
     int height_(Node *root) const {
         return root ? root->height : -1;
+    }
+
+    Node *min_node(Node *root) {
+        if (!root) return nullptr;
+        if (root->left) return min_node(root->left);
+        else
+            return root;
+    }
+
+    Node *updateZigueZiga(Node *root) {
+        updateHeight_(root);
+        Node *tmp = root;
+        if (height_(root->left) - height_(root->right) > 1) {
+            if (height_(root->left->left) > height_(root->left->right))
+                tmp = simpleLeft_(root);
+            else
+                tmp = doubleLeft_(root);
+        } else if (height_(root->right) - height_(root->left) > 1) {
+            if (height_(root->right->right) > height_(root->right->left))
+                tmp = simpleRight_(root);
+            else
+                tmp = doubleRight_(root);
+        }
+        return tmp;
     }
 
     Node* root_;
