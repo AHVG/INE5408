@@ -22,7 +22,7 @@ public:
     }
 
     void insert(const T& data) {
-        root_ = insert_(data, &root_);
+        root_ = insert_(data, root_);
         size_++;
     }
 
@@ -57,13 +57,13 @@ public:
 
     ArrayList<T> in_order() const {
         ArrayList<T> v;
-        if (root_) in_order(v, root_);
+        if (root_) in_order_(v, root_);
         return v;
     }
 
     ArrayList<T> post_order() const {
         ArrayList<T> v;
-        if (root_) post_order(v, root_);
+        if (root_) post_order_(v, root_);
         return v;
     }
 
@@ -80,42 +80,48 @@ private:
         int height;
         Node* left;
         Node* right;
-
     };
 
-    Node *insert_(const T& data_, Node **root) {
-        Node *tmp = *root;
-        if ((*root) == nullptr) {
-            *root = new Node(data_);
-        } else if(data_ < ((*root)->data)) {
-            (*root)->left = insert_(data_, &((*root)->left));
-            if (std::abs((*root)->left, (*root)->right) > 1) {
-                if (data_ < (*root)->left->data) tmp = simpleLeft_(*root);
-                else tmp = doubleLeft_(*root);
-            } else updateHeight_(tmp);
-        } else if {
-            (*root)->right = insert_(data_, &((*root)->right));
-            if (std::abs((*root)->left, (*root)->right) > 1) {
-                if (data_ > (*root)->right->data) tmp = simpleRight_(*root);
-                else tmp = doubleRight_(*root);
-            } else updateHeight_(tmp);
+    Node *insert_(const T& data_, Node *root) {
+        Node *tmp = root;
+        if (root == nullptr) {
+            return new Node(data_);
+        } else if (data_ < root->data) {
+            root->left = insert_(data_, root->left);
+            if (std::abs(height_(root->left) - height_(root->right)) > 1) {
+                if (data_ < root->left->data) tmp = simpleLeft_(root);
+                else
+                    tmp = doubleLeft_(root);
+            } else {
+                updateHeight_(tmp);
+            }
+        } else if (data_ > (root->data)) {
+            root->right = insert_(data_, root->right);
+            if (std::abs(height_(root->left) - height_(root->right)) > 1) {
+                if (data_ > root->right->data) tmp = simpleRight_(root);
+                else
+                    tmp = doubleRight_(root);
+            } else {
+                updateHeight_(tmp);
+            }
         }
         return tmp;
     }
 
-    bool remove_(const T& data_, Node *root) {
-
+    Node *remove_(const T& data_, Node *root) {
+        return root;
     }
 
     bool contains_(const T& data_, Node *root) const {
         if (!root) return false;
         if (data_ < root->data) return contains_(data_, root->left);
-        else if(data_ > root->data) return contains_(data_, root->right);
-        else return true;
+        else if (data_ > root->data) return contains_(data_, root->right);
+        else
+            return true;
     }
 
     void updateHeight_(Node *root) {
-        root->height = std::max(height_(root->left), height_(root->right));
+        root->height = std::max(height_(root->left), height_(root->right)) + 1;
     }
 
     Node* simpleLeft_(Node *root) {
@@ -146,7 +152,7 @@ private:
     }
 
     Node* doubleRight_(Node *root) {
-        root->right = simpleLeft_(root->Right);
+        root->right = simpleLeft_(root->right);
         return simpleRight_(root);
     }
 
@@ -171,10 +177,10 @@ private:
         v.push_back(root->data);
     }
 
-    int height_(Node *root) {
+    int height_(Node *root) const {
         return root ? root->height : -1;
     }
-    
+
     Node* root_;
     std::size_t size_;
 };
