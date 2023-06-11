@@ -22,7 +22,7 @@ public:
     }
 
     void insert(const T& data) {
-        root_ = insert_(data, root_);
+        root_ = insert_(data, &root_);
         size_++;
     }
 
@@ -83,7 +83,24 @@ private:
 
     };
 
-    void insert_(const T& data_, Node *root) {
+    Node *insert_(const T& data_, Node **root) {
+        Node *tmp = *root;
+        if ((*root) == nullptr) {
+            *root = new Node(data_);
+        } else if(data_ < ((*root)->data)) {
+            (*root)->left = insert_(data_, &((*root)->left));
+            if (std::abs((*root)->left, (*root)->right) > 1) {
+                if (data_ < (*root)->left->data) tmp = simpleLeft_(*root);
+                else tmp = doubleLeft_(*root);
+            } else updateHeight_(tmp);
+        } else if {
+            (*root)->right = insert_(data_, &((*root)->right));
+            if (std::abs((*root)->left, (*root)->right) > 1) {
+                if (data_ > (*root)->right->data) tmp = simpleRight_(*root);
+                else tmp = doubleRight_(*root);
+            } else updateHeight_(tmp);
+        }
+        return tmp;
     }
 
     bool remove_(const T& data_, Node *root) {
