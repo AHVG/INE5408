@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -20,12 +21,6 @@ class NoArvore {
     NoArvore(char letra_, unsigned long posicao_, unsigned long comprimento_) : NoArvore(letra_, posicao_) {comprimento = comprimento_;}
     ~NoArvore() { }
 
-    int procurarLetra(char letra) {
-        int i;
-        for (i = 0; filhos[i]; i++) if (filhos[i]->letra == letra) break;
-        return i;
-    }
-
     unsigned long prefixos() {return prefixos_;}
 
     char letra;
@@ -42,9 +37,11 @@ class Arvore {
     Arvore() {raiz = new NoArvore();}
     ~Arvore() {deletar(raiz); raiz = nullptr;}
 
+    void paraMinusculo(std::string &texto) {std::transform(texto.begin(), texto.end(), texto.begin(), [](unsigned char c) {return std::tolower(c);});}
+
     void deletar(NoArvore *raiz) {
         for (int i = 0; i < LETRAS_ALFABETO; i++) {
-            if (!raiz->filhos[i]) break;
+            if (!raiz->filhos[i]) continue;
             deletar(raiz->filhos[i]);
         }
         delete raiz;
@@ -52,11 +49,11 @@ class Arvore {
 
     void inserir(std::string palavra, int posicao, int comprimento) {
         NoArvore *atual = raiz;
+        paraMinusculo(palavra);
+
         for (int i = 0; i < palavra.length(); i++) {
-            int j = atual->procurarLetra(palavra[i]);
-            if (!atual->filhos[j])
-                atual->filhos[j] = new NoArvore(palavra[i]);
-            atual = atual->filhos[j];
+            if (!atual->filhos[palavra[i] - 'a']) atual->filhos[palavra[i] - 'a'] = new NoArvore(palavra[i]);
+            atual = atual->filhos[palavra[i] - 'a'];
             atual->prefixos_++;
         }
         atual->comprimento = comprimento;
@@ -66,10 +63,8 @@ class Arvore {
     NoArvore *prefixos(std::string palavra) {
         NoArvore *atual = raiz;
         for (int i = 0; i < palavra.length(); i++) {
-            int j = atual->procurarLetra(palavra[i]);
-            if (!atual->filhos[j])
-                return atual->filhos[j];
-            atual = atual->filhos[j];
+            if (!atual->filhos[palavra[i] - 'a']) return atual->filhos[palavra[i] - 'a'];
+            atual = atual->filhos[palavra[i] - 'a'];
         }
         return atual;
     }
