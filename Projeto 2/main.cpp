@@ -40,17 +40,13 @@ class Arvore {
     void paraMinusculo(std::string &texto) {std::transform(texto.begin(), texto.end(), texto.begin(), [](unsigned char c) {return std::tolower(c);});}
 
     void deletar(NoArvore *raiz) {
-        for (int i = 0; i < LETRAS_ALFABETO; i++) {
-            if (!raiz->filhos[i]) continue;
-            deletar(raiz->filhos[i]);
-        }
+        for (int i = 0; i < LETRAS_ALFABETO; i++) if (raiz->filhos[i]) deletar(raiz->filhos[i]);
         delete raiz;
     }
 
     void inserir(std::string palavra, int posicao, int comprimento) {
         NoArvore *atual = raiz;
         paraMinusculo(palavra);
-
         for (int i = 0; i < palavra.length(); i++) {
             if (!atual->filhos[palavra[i] - 'a']) atual->filhos[palavra[i] - 'a'] = new NoArvore(palavra[i]);
             atual = atual->filhos[palavra[i] - 'a'];
